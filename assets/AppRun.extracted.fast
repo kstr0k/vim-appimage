@@ -1,0 +1,21 @@
+#!/bin/sh
+set -ue
+ARGV0=$0
+APPDIR=$(readlink -f "$0"); APPDIR=${APPDIR%/*}; APPDIR=${APPDIR:-/}
+export ARGV0 APPDIR
+
+# unoptimized version:
+# exec "${APPDIR}"/AppRun "$@"
+
+# optimized version:
+# the following should really replace the AppRun linuxdeploy generates
+# for GVim.appimage (but not for Vim.appimage)
+if test -r "$APPDIR"/AppRun.wrapped; then # GVim.appimage
+  case "${ARGV0##*/}" in
+    (vim*) ;;  # no hooks needed
+    (*) . "$APPDIR"/apprun-hooks/linuxdeploy-plugin-gtk.sh ;;
+  esac
+  . "$APPDIR"/AppRun.wrapped
+else  # Vim.appimage
+  . "$APPDIR"/AppRun
+fi
