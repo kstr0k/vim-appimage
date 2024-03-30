@@ -36,18 +36,24 @@ make_appimage()
 	cat <<'EOF' > AppRun
 #!/bin/sh
 set -ue
-: "${ARGV0:=$0}"  # run without AppImage too
-this_dir=$(readlink -f "$0")
-this_dir=${this_dir%/*}  # empty for '/'
-VIMRUNTIME=${this_dir}/usr/share/vim/vim91; export VIMRUNTIME
-test -x "${this_dir}/usr/bin/gvim" || ARGV0=/vim
+VIMRUNTIME=${APPDIR}/usr/share/vim/vim91; export VIMRUNTIME
+test -x "${APPDIR}/usr/bin/gvim" || ARGV0=/vim
 case "${ARGV0##*/}" in
-  (vim*) set -- "${this_dir}/usr/bin/vim"  "$@" ;;
-  (*)    set -- "${this_dir}/usr/bin/gvim" "$@" ;;
+  (vim*) set -- "${APPDIR}/usr/bin/vim"  "$@" ;;
+  (*)    set -- "${APPDIR}/usr/bin/gvim" "$@" ;;
 esac
 unset ARGV0
 exec "$@"
 EOF
+	cat <<'EOF' > AppRun.extracted
+#!/bin/sh
+set -ue
+ARGV0=$0
+APPDIR=$(readlink -f "$0"); APPDIR=${APPDIR%/*}; APPDIR=${APPDIR:-/}
+export ARGV0 APPDIR
+exec "${APPDIR}"/AppRun "$@"
+EOF
+	chmod a+rx AppRun.extracted
 	popd
 
 	export UPDATE_INFORMATION="gh-releases-zsync|vim|vim-appimage|latest|$APP-*x86_64.AppImage.zsync"
