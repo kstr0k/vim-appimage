@@ -65,8 +65,9 @@ ln -s ~/gvim.AppDir/AppRun.extracted ~/bin/gvim
 ln -s ~/gvim.AppDir/AppRun.extracted ~/bin/vim
 \`\`\`
 
-### More Information
-If you need a dynamic interface to Perl, Python2, Python3.8, Ruby or Lua make sure your system provides the needed dynamic libraries (e.g. libperlX, libpython2.7 libpython3X liblua5X and librubyX) as those are **not** distributed together with the image to not make the image too large.
+### Optional libraries
 
-However, Vim will work without those libraries, but some plugins might need those additional dependencies. This means, those interpreters have to be installed in addition to Vim. Without it Vim won't be able to use those dynamic interfaces.
+To use Vim's dynamic interface to Perl, Python2, Python3.10, Ruby 3, or Lua, make sure your system provides the needed dynamic libraries (packages like \`libperl* libpython2* libpython3* liblua5* libruby*\` from your distribution) as those are **not** distributed with the images (to keep their size reasonable among other reasons).
+
+Vim will run without those libraries / languages, but plugins that require them obviosuly won't. You can install those interpreters later on your system if you decide you need them.
 EOF
