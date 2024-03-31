@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 vimcommiturl="https://github.com/vim/vim/commit/"
-dl_counter="![Github Downloads (by Release)](https://img.shields.io/github/downloads/$GITHUB_REPOSITORY/${VERSION}/total.svg)"
+dl_counter="![Github Downloads (by Release)](https://img.shields.io/github/downloads/$GITHUB_REPOSITORY/${release_tag}/total.svg)"
 version_info="**GVim: $VERSION** - Vim git commit: [$GIT_REV](${vimcommiturl}${GIT_REV}) - glibc: ${GLIBC}"
 gha_build="[GitHub Actions Logfile]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
 
@@ -15,14 +15,14 @@ if [ -z "$vimlog_md" ]; then
 fi
 
 cat <<EOF
-## Vim AppImage Release ${VERSION}
+## vim-appimage release ${release_tag}
 $dl_counter<br><br>Version Information:<br>$version_info<br><br>$gha_build
 <hr>
 
 ### Downloads
 This release provides the following Artifacts:
-* [![GVim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${VERSION}/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage)
-* [![Vim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${VERSION}/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage)
+* [![GVim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${release_tag}/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${release_tag}/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage)
+* [![Vim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${release_tag}/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${release_tag}/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage)
 <p/>
 
 ### Changelog
