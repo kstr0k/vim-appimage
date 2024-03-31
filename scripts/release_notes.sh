@@ -28,31 +28,34 @@ This release provides the following Artifacts:
 ### Changelog
 $vimlog_md
 
-### What is the Difference between the GVim and the Vim Appimage?
-The difference between the GVim and Vim Appimage is, that the GVim version includes a graphical User Interface (GTK3) and other X11 features like clipboard handling. That means, for proper clipboard support, you'll **need** the GVim Appimage, but you can only run this on a system that has the X11 libraries installed. <p/>
+### What's the difference between the GVim and the Vim AppImage?
 
-For a Server or headless environment, you are probably be better with the Vim version.<p/> _Note_: The image is based on Ubuntu 20.04 LTS focal. It most likely won't work on older distributions.
+* The GVim version includes Vim's GTK3 graphical user interface and other X11 features (including clipboard support). For a **desktop** system, you'll want the GVim AppImage.
+* The GVim appimage only runs on systems with the X11 libraries installed (even if you try to run it outside X11, e.g. from \`ssh\`); for a **server / headless** environment, you're better off with the Vim AppImage.
+
+_Note_: The images are based on Ubuntu 22.04 LTS (jammy) and most likely won't work on older distributions.
 
 ### Run it
-Download the AppImage, make it executable then you can just run it:
+Download the AppImage, make it executable, then run it as you would run Vim (including any optional CLI arguments):
 \`\`\`bash
-wget -O /tmp/gvim.appimage https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage
+URL='https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/'
+wget -O /tmp/gvim.appimage "\$URL"/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage
 chmod +x /tmp/gvim.appimage
 /tmp/gvim.appimage
-# alternatively, download the Vim Appimage
-wget -O /tmp/vim.appimage https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage
+
+# alternatively, download the Vim AppImage
+wget -O /tmp/vim.appimage "\$URL"/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage
 chmod +x /tmp/vim.appimage
 /tmp/vim.appimage
 \`\`\`
 
-That's all, you should have a graphical vim now running (if you have a graphical system running) :smile: 
+You should now have a graphical vim running (if you have a graphical system and chose the GVim appimage) :smile:
 
-If you want a terminal Vim (with X11 and clipboard feature enabled), just create a symbolic link with a name starting with "vim". Like:
+If you want "terminal" Vim (but with X11 and clipboard support), download the GVim appimage, create a symbolic link with any name starting with "vim..." (or even simply \`vim\`), then run it through this symlink:
 \`\`\`bash
 ln -s /tmp/gvim.appimage /tmp/vim.appimage
+/tmp/vim.appimage
 \`\`\`
-
-Then execute \`vim.appimage\` to get a terminal Vim.
 
 ### More Information
 If you need a dynamic interface to Perl, Python2, Python3.8, Ruby or Lua make sure your system provides the needed dynamic libraries (e.g. libperlX, libpython2.7 libpython3X liblua5X and librubyX) as those are **not** distributed together with the image to not make the image too large.
