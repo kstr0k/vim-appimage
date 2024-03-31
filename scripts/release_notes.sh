@@ -57,6 +57,14 @@ ln -s /tmp/gvim.appimage /tmp/vim.appimage
 /tmp/vim.appimage
 \`\`\`
 
+Finally, it's possible to *extract* the AppImage to a folder ("AppDir") and run vim / gvim directly from there, using the \`AppRun.extracted\` script included in the AppImage. For frequent usage, this incurs less overhead and brings up vim faster than the AppImage (which internally auto-mounts its own "AppDir" on every run). Plus (compared to using distro packages) you still get the latest Vim. For example, for the GVim appimage:
+\`\`\`bash
+cd /tmp; ./gvim.appimage --appimage-extract
+mv squashfs-root ~/gvim.AppDir
+ln -s ~/gvim.AppDir/AppRun.extracted ~/bin/gvim
+ln -s ~/gvim.AppDir/AppRun.extracted ~/bin/vim
+\`\`\`
+
 ### More Information
 If you need a dynamic interface to Perl, Python2, Python3.8, Ruby or Lua make sure your system provides the needed dynamic libraries (e.g. libperlX, libpython2.7 libpython3X liblua5X and librubyX) as those are **not** distributed together with the image to not make the image too large.
 
