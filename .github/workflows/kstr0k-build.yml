@@ -4,6 +4,10 @@ on:
   # schedule:
   #   - cron: '0 0 * * *'
   workflow_dispatch:
+    inputs:
+      vim_tag:
+        description: 'Vim tag (empty=latest)'
+        default: ''
 
 jobs:
   check-updates-job:
@@ -58,7 +62,11 @@ jobs:
           tag1=${{ fromJSON(steps.latest-tags.outputs.data).appimage.refs.edges[1].node.name }}
           prev_vim_tag=$(printf '%s\n' "$tag0" "$tag1" | sort -r | grep -m1 '^v')
           vim_tag=${{ fromJSON(steps.latest-tags.outputs.data).vim.refs.edges[0].node.name }}
-          echo 'tags:' "our ${prev_vim_tag}" "vim ${vim_tag}"
+          vim_forced_tag=${{ github.event.inputs.vim_tag }}
+          if [ -n "${vim_forced_tag}" ]; then
+            vim_tag=$vim_forced_tag
+          fi
+          echo 'tags:' "(ours=${prev_vim_tag})" "(vim=${vim_tag})"
           kstr0k_tag=kstr0k-jammy-${vim_tag}
           echo "prev_vim_tag=${prev_vim_tag}" >> "$GITHUB_OUTPUT"
           echo "vim_tag=${vim_tag}"   >> "$GITHUB_OUTPUT"
@@ -91,6 +99,7 @@ jobs:
         run: |
           git submodule update --init
           git submodule update --remote
+          git -C vim switch --detach "${vim_tag}"
 
       - name: Set up system
         run: |
