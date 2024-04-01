@@ -11,7 +11,9 @@ jobs:
 
     outputs:
       updated: ${{ steps.check-updates.outputs.updated }}
-      appimagetag: ${{ steps.check-updates.outputs.appimagetag }}
+      prev_vim_tag: ${{ steps.check-updates.outputs.prev_vim_tag }}
+      vim_tag: ${{ steps.check-updates.outputs.vim_tag }}
+      kstr0k_tag: ${{ steps.check-updates.outputs.kstr0k_tag }}
 
     steps:
       - name: Set up param
@@ -27,7 +29,7 @@ jobs:
           query: |
             query($owner:String!,$repo:String!) {
               appimage: repository(owner:$owner, name:$repo) {
-                refs(refPrefix:"refs/tags/", last:1) {
+                refs(refPrefix:"refs/tags/", last:2) {
                   edges {
                     node {
                       name
@@ -51,10 +53,17 @@ jobs:
       - name: Check updates
         id: check-updates
         run: |
-          appimage_tag=${{ fromJSON(steps.latest-tags.outputs.data).appimage.refs.edges[0].node.name }}
+          set -ue
+          tag0=${{ fromJSON(steps.latest-tags.outputs.data).appimage.refs.edges[0].node.name }}
+          tag1=${{ fromJSON(steps.latest-tags.outputs.data).appimage.refs.edges[1].node.name }}
+          prev_vim_tag=$(printf '%s\n' "$tag0" "$tag1" | sort -r | grep -m1 '^v')
           vim_tag=${{ fromJSON(steps.latest-tags.outputs.data).vim.refs.edges[0].node.name }}
-          echo "appimagetag=${appimage_tag}" >> "$GITHUB_OUTPUT"
-          echo "updated=$([[ ${appimage_tag} != ${vim_tag} ]] && echo true)" >> "$GITHUB_OUTPUT"
+          echo 'tags:' "our ${prev_vim_tag}" "vim ${vim_tag}"
+          kstr0k_tag=kstr0k-jammy-${vim_tag}
+          echo "prev_vim_tag=${prev_vim_tag}" >> "$GITHUB_OUTPUT"
+          echo "vim_tag=${vim_tag}"   >> "$GITHUB_OUTPUT"
+          echo "kstr0k_tag=${kstr0k_tag}" >> "$GITHUB_OUTPUT"
+          echo "updated=$([[ ${prev_vim_tag} != ${vim_tag} ]] && echo true)" >> "$GITHUB_OUTPUT"
 
   create-appimage-job:
     runs-on: ubuntu-22.04
@@ -68,7 +77,9 @@ jobs:
       TERM: xterm
       DISPLAY: ':99'
       DEBIAN_FRONTEND: noninteractive
-      VIM_REF: ${{ needs.check-updates-job.outputs.appimagetag }}
+      VIM_REF: ${{ needs.check-updates-job.outputs.prev_vim_tag }}
+      vim_tag: ${{ needs.check-updates-job.outputs.vim_tag }}
+      kstr0k_tag: ${{ needs.check-updates-job.outputs.kstr0k_tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -113,24 +124,25 @@ jobs:
       - name: Commit and push
         id: commit
         run: |
-          tag_name=$(git -C vim describe --tags --abbrev=0)
-          echo "tag_name=${tag_name}" >> "$GITHUB_OUTPUT"
+          set -ue
           vim_summary=$(git submodule summary vim)
           workflow_url=${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
 
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin "https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}"
-          git commit -m "Vim: ${tag_name}" -m "${vim_summary}" -m "${workflow_url}" vim
-          git tag -f "${tag_name}" -m "Vim: ${tag_name}"
+          if git commit -m "Vim: ${vim_tag}" -m "${vim_summary}" -m "${workflow_url}" vim; then
+            git tag -f "${vim_tag}" -m "Vim: ${vim_tag}"
+          fi
+          git tag -f "${kstr0k_tag}"  # lightweight tag
           git push --follow-tags -u origin "${GITHUB_REF_NAME}"
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           body_path: release.body
-          name: 'Vim: ${{ steps.commit.outputs.tag_name }}'
-          tag_name: ${{ steps.commit.outputs.tag_name }}
+          name: 'custom vim-appimage: ${{ needs.check-updates-job.outputs.kstr0k_tag }}'
+          tag_name: ${{ needs.check-updates-job.outputs.kstr0k_tag }}
           files: |
             *.AppImage
             *.zsync
