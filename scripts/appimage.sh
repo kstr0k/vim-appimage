@@ -32,23 +32,7 @@ make_appimage()
 		PLUGIN="--plugin gtk"
 	fi
 
-	pushd ${APP}.AppDir
-	cat <<'EOF' > AppRun
-#!/bin/sh
-set -ue
-: "${ARGV0:=$0}"  # run without AppImage too
-this_dir=$(readlink -f "$0")
-this_dir=${this_dir%/*}  # empty for '/'
-VIMRUNTIME=${this_dir}/usr/share/vim/vim91; export VIMRUNTIME
-test -x "${this_dir}/usr/bin/gvim" || ARGV0=/vim
-case "${ARGV0##*/}" in
-  (vim*) set -- "${this_dir}/usr/bin/vim"  "$@" ;;
-  (*)    set -- "${this_dir}/usr/bin/gvim" "$@" ;;
-esac
-unset ARGV0
-exec "$@"
-EOF
-	popd
+	cp -a "$script_dir"/../assets/AppRun "${APP}".AppDir/
 
 	export UPDATE_INFORMATION="gh-releases-zsync|vim|vim-appimage|latest|$APP-*x86_64.AppImage.zsync"
 	export OUTPUT="${APP}-${VERSION}.glibc${GLIBC}-${ARCH}.AppImage"
@@ -96,7 +80,7 @@ pushd vim
 GIT_REV="$(git rev-parse --short HEAD)"
 # should use tag if available, else use 7-hexdigit hash
 VERSION="$(git describe --tags --abbrev=0 || git describe --always)"
-# VIM_DIR: /home/<user>/vim-appimage/vim
+
 VIM_DIR="$(git rev-parse --show-toplevel)"
 ARCH=$(arch)
 LOWERAPP=${APP,,}

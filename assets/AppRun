@@ -1,0 +1,10 @@
+#!/bin/sh
+set -ue
+VIMRUNTIME=${APPDIR}/usr/share/vim/vim91; export VIMRUNTIME
+test -x "${APPDIR}/usr/bin/gvim" || ARGV0=/vim
+case "${ARGV0##*/}" in
+  (vim*) set -- "${APPDIR}/usr/bin/vim"  "$@" ;;
+  (*)    set -- "${APPDIR}/usr/bin/gvim" "$@" ;;
+esac
+unset ARGV0
+exec "$@"
