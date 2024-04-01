@@ -32,7 +32,9 @@ make_appimage()
 		PLUGIN="--plugin gtk"
 	fi
 
-	cp -a "$script_dir"/../assets/AppRun "${APP}".AppDir/
+	cp "$script_dir"/../assets/AppRun \
+	   "$script_dir"/../assets/AppRun.extracted \
+	   "${APP}".AppDir/
 
 	export UPDATE_INFORMATION="gh-releases-zsync|vim|vim-appimage|latest|$APP-*x86_64.AppImage.zsync"
 	export OUTPUT="${APP}-${VERSION}.glibc${GLIBC}-${ARCH}.AppImage"
