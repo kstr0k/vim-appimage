@@ -74,25 +74,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install packages
-        run: |
-          sudo apt update && sudo apt install -y \
-            autoconf \
-            lcov \
-            gettext \
-            libcanberra-dev \
-            libperl-dev \
-            python-dev \
-            python3.8-dev \
-            liblua5.3-dev \
-            lua5.3 \
-            ruby-dev \
-            tcl-dev \
-            cscope \
-            libgtk-3-dev \
-            desktop-file-utils \
-            libtool-bin \
-            at-spi2-core \
-            libsodium-dev
+        run: sudo scripts/install-distro-build-deps.sh
 
       - name: Update Vim
         run: |
