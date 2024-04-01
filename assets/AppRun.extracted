@@ -1,0 +1,9 @@
+#!/bin/sh
+# emulates an AppImage environment
+
+set -ue
+
+ARGV0=$0
+APPDIR=$(readlink -f "$0"); APPDIR=${APPDIR%/*}; APPDIR=${APPDIR:-/}
+export ARGV0 APPDIR
+exec "${APPDIR}"/AppRun "$@"
