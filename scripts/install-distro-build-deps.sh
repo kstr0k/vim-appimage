@@ -4,15 +4,14 @@ set -ue
 export DEBIAN_FRONTEND=noninteractive
 
 apt update && apt install -y \
+  libfuse2 \
   autoconf \
   lcov \
   gettext \
   libcanberra-dev \
   libperl-dev \
-  python-dev \
-  python3.8-dev \
-  liblua5.3-dev \
-  lua5.3 \
+  python2-dev python3-dev \
+  liblua5.4-dev lua5.4 \
   ruby-dev \
   tcl-dev \
   cscope \
