@@ -1,15 +1,14 @@
 #!/bin/sh
 set -ue
-apt update && apt install -y \
+sudo apt update && sudo apt install -y \
+  libfuse2 \
   autoconf \
   lcov \
   gettext \
   libcanberra-dev \
   libperl-dev \
-  python-dev \
-  python3.8-dev \
-  liblua5.3-dev \
-  lua5.3 \
+  python2-dev python3-dev \
+  liblua5.4-dev lua5.4 \
   ruby-dev \
   tcl-dev \
   cscope \
