@@ -33,6 +33,7 @@ make_appimage()
 	fi
 
 	cp -a "$script_dir"/../assets/AppRun ${APP}.AppDir/
+	cp -a "$script_dir"/../assets/AppRun.extracted ${APP}.AppDir/
 
 	export UPDATE_INFORMATION="gh-releases-zsync|vim|vim-appimage|latest|$APP-*x86_64.AppImage.zsync"
 	export OUTPUT="${APP}-${VERSION}.glibc${GLIBC}-${ARCH}.AppImage"
