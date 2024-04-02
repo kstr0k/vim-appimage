@@ -1,0 +1,57 @@
+on:
+  # schedule:
+  #   - cron: '0 0 * * *'
+  workflow_dispatch:
+    inputs:
+      vim_tag:
+        description: 'Vim tag (empty=latest)'
+        default: ''
+
+jobs:
+  check-updates-job:
+    runs-on: ubuntu-latest
+
+    outputs:
+      updated: ${{ steps.check-updates.outputs.updated }}
+      prev_vim_tag: ${{ steps.check-updates.outputs.prev_vim_tag }}
+      vim_tag: ${{ steps.check-updates.outputs.vim_tag }}
+      kstr0k_tag: ${{ steps.check-updates.outputs.kstr0k_tag }}
+
+    steps:
+      - name: Set up param
+        id: param
+        run: awk -F/ '{print"owner="$1"\nrepo="$2}' <<< "${{ github.repository }}" >> "$GITHUB_OUTPUT"
+
+      - name: Get latest tags
+        id: latest-tags
+        uses: octokit/graphql-action@v2.x
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          query: |
+            query($owner:String!,$repo:String!) {
+              appimage: repository(owner:$owner, name:$repo) {
+                refs(refPrefix:"refs/tags/", last:2) {
+                  edges { node { name } }
+                }
+              }
+              vim: repository(owner:"vim", name:"vim") {
+                refs(refPrefix:"refs/tags/", last:1) {
+                  edges { node { name } }
+                }
+              }
+            }
+
+      - name: Check updates
+        id: check-updates
+        run: |
+          tag0=${{ fromJSON(steps.latest-tags.outputs.data).appimage.refs.edges[0].node.name }}
+          tag1=${{ fromJSON(steps.latest-tags.outputs.data).appimage.refs.edges[1].node.name }}
+          prev_vim_tag=$(printf '%s\n' "$tag0" "$tag1" | sort -r | grep -m1 '^v')
+          vim_tag=${{ fromJSON(steps.latest-tags.outputs.data).vim.refs.edges[0].node.name }}
+          vim_forced_tag=${{ github.event.inputs.vim_tag }}
+          if [ -n "${vim_forced_tag}" ]; then
+            vim_tag=$vim_forced_tag
+          fi
+          echo 'tags:' "(ours=${prev_vim_tag})" "(vim=${vim_tag})"
+
