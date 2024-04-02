@@ -38,7 +38,7 @@ jobs:
               }
             }
         run: |
-          json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="MYREPO" -f query="$GQL_Q1")
+          json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" -f query="$GQL_Q1")
           printf '%s\n' "json=$json" | tee -a "$GITHUB_OUTPUT"
 
       - name: Check updates
