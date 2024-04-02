@@ -18,10 +18,6 @@ jobs:
       kstr0k_tag: ${{ steps.check-updates.outputs.kstr0k_tag }}
 
     steps:
-      - name: Set up param
-        id: param
-        run: awk -F/ '{print"owner="$1"\nrepo="$2}' <<< "${{ github.repository }}" >> "$GITHUB_OUTPUT"
-
       - name: Get latest tags
         id: latest-tags
         uses: octokit/graphql-action@v2.x
@@ -29,8 +25,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           query: |
-            query($owner1:String!,$repo1:String!) {
-              appimage: repository(owner:$owner1, name:$repo1) {
+            query($myowner:String!,$myrepo:String!) {
+              appimage: repository(owner:$myowner, name:$myrepo) {
                 refs(refPrefix:"refs/tags/", last:2) {
                   edges { node { name } }
                 }
@@ -41,8 +37,8 @@ jobs:
                 }
               }
             }
-          owner1: ${{ steps.param.outputs.owner }}
-          repo1: ${{ steps.param.outputs.repo }}
+          myowner: ${{ github.repository_owner }}
+          myrepo: ${{ github.event.repository.name }}
 
 
       - name: Check updates
