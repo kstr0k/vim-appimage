@@ -29,7 +29,7 @@ jobs:
           GQL_Q1: |
             query($myowner:String!,$myrepo:String!) {
               appimage: repository(owner:$myowner, name:$myrepo) {
-                ref(qualifiedName: "refs/tags/v9.1.0225") {
+                ref(qualifiedName: "refs/tags/kstr0k-latest-release") {
                   target { oid }
                 }
               }
