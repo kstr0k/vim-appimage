@@ -38,9 +38,8 @@ jobs:
               }
             }
         run: |
-          json=$(gh api graphql
-          -F myowner="$MYOWNER" -F myrepo="$MYREPO"
-          -f query="$GQL_Q1")
+          json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" \
+            -f query="$GQL_Q1")
           tee -a "$GITHUB_OUTPUT" <<EOGHO
           json=$json
           EOGHO
@@ -58,10 +57,9 @@ jobs:
               }
             }
         run: |
-          json=$(gh api graphql
-          -F myowner="$MYOWNER" -F myrepo="$MYREPO"
-          -F tag_oid=${{ fromJSON(steps.latest-tags.outputs.json).data.appimage.ref.target.oid }}
-          -f query="$GQL_Q2")
+          json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" \
+            -F tag_oid=${{ fromJSON(steps.latest-tags.outputs.json).data.appimage.ref.target.oid }} \
+            -f query="$GQL_Q2")
           tee -a "$GITHUB_OUTPUT" <<EOGHO
           json=$json
           EOGHO
