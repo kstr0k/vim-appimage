@@ -29,8 +29,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           query: |
-            query($owner:String!,$repo:String!) {
-              appimage: repository(owner:$owner, name:$repo) {
+            query($owner1:String!,$repo1:String!) {
+              appimage: repository(owner:$owner1, name:$repo1) {
                 refs(refPrefix:"refs/tags/", last:2) {
                   edges { node { name } }
                 }
@@ -41,6 +41,9 @@ jobs:
                 }
               }
             }
+          owner1: ${{ steps.param.outputs.owner }}
+          repo1: ${{ steps.param.outputs.repo }}
+
 
       - name: Check updates
         id: check-updates
