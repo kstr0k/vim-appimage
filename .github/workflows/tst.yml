@@ -20,11 +20,10 @@ jobs:
     steps:
       - name: Get latest tags
         id: latest-tags
-        uses: octokit/graphql-action@v2.x
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          query: |
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          json=$(gh api graphql -F owner=${{ github.repository_owner }} -F name=${{ github.event.repository.name }} -f query='
             query($myowner:String!,$myrepo:String!) {
               appimage: repository(owner:$myowner, name:$myrepo) {
                 refs(refPrefix:"refs/tags/", last:2) {
@@ -37,9 +36,8 @@ jobs:
                 }
               }
             }
-          myowner: ${{ github.repository_owner }}
-          myrepo: ${{ github.event.repository.name }}
-
+          '
+          printf '%s=%s\n' 'data' "$json" | tee -a "$GITHUB_OUTPUT"
 
       - name: Check updates
         id: check-updates
