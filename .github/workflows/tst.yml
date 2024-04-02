@@ -58,7 +58,7 @@ jobs:
             }
         run: |
           json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" \
-            -F tag_oid=${{ fromJSON(steps.latest-tags.outputs.json).data.appimage.ref.target.oid }} \
+            -f tag_oid=${{ fromJSON(steps.latest-tags.outputs.json).data.appimage.ref.target.oid }} \
             -f query="$GQL_Q2")
           tee -a "$GITHUB_OUTPUT" <<EOGHO
           json=$json
