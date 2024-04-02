@@ -7,6 +7,9 @@ on:
         description: 'Vim tag (empty=latest)'
         default: ''
 
+env:
+  MYOWNER: ${{ github.repository_owner }}
+
 jobs:
   check-updates-job:
     runs-on: ubuntu-latest
@@ -21,7 +24,6 @@ jobs:
       - name: Get latest tags
         id: latest-tags
         env:
-          MYOWNER: ${{ github.repository_owner }}
           MYREPO: ${{ github.event.repository.name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GQL_Q1: |
@@ -47,7 +49,6 @@ jobs:
       - name: Get previous release vim tag
         id: prev-vim-tag
         env:
-          MYOWNER: ${{ github.repository_owner }}
           MYREPO: ${{ github.event.repository.name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GQL_Q2: |
