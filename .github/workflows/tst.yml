@@ -44,5 +44,6 @@ jobs:
       - name: Check updates
         id: check-updates
         run: |
-          printf 'prev json: <\n%s\n>\n' ${{ toJSON(fromJSON(steps.latest-tags.outputs.json)) }}
-
+          printf 'prev json: <\n%s\n>\n' <<'EOF'
+          ${{ toJSON(fromJSON(steps.latest-tags.outputs.json)) }}
+          EOF
