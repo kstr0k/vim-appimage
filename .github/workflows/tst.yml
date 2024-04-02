@@ -51,14 +51,14 @@ jobs:
           MYREPO: ${{ github.event.repository.name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GQL_Q2: |
-            query($myowner:String!,$myrepo:String!,$tag_oid:String!) {
+            query($myowner:String!,$myrepo:String!,$tag_oid:ID!) {
               appimage: repository(owner:$myowner, name:$myrepo) {
                 object(oid: $tag_oid ) { ... on Tag { message }}
               }
             }
         run: |
           json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" \
-            -f tag_oid=${{ fromJSON(steps.latest-tags.outputs.json).data.appimage.ref.target.oid }} \
+            -F tag_oid=${{ fromJSON(steps.latest-tags.outputs.json).data.appimage.ref.target.oid }} \
             -f query="$GQL_Q2")
           tee -a "$GITHUB_OUTPUT" <<EOGHO
           json=$json
