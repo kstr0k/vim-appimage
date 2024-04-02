@@ -23,7 +23,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          json=$(gh api graphql -F owner=${{ github.repository_owner }} -F name=${{ github.event.repository.name }} -f query='
+          json=$(gh api graphql -F myowner=${{ github.repository_owner }} -F myrepo=${{ github.event.repository.name }} -f query='
             query($myowner:String!,$myrepo:String!) {
               appimage: repository(owner:$myowner, name:$myrepo) {
                 refs(refPrefix:"refs/tags/", last:2) {
