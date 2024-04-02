@@ -44,5 +44,5 @@ jobs:
       - name: Check updates
         id: check-updates
         run: |
-          printf 'prev json: <\n%s\n>\n' ${{ steps.latest-tags.outputs.json }}
+          printf 'prev json: <\n%s\n>\n' ${{ steps.latest-tags.outputs.json.appimage }}
 
