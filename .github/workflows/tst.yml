@@ -51,7 +51,7 @@ jobs:
           MYREPO: ${{ github.event.repository.name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GQL_Q2: |
-            query($myowner:String!,$myrepo:String!,$tag_oid:ID!) {
+            query($myowner:String!,$myrepo:String!,$tag_oid:GitObjectID) {
               appimage: repository(owner:$myowner, name:$myrepo) {
                 object(oid: $tag_oid ) { ... on Tag { message }}
               }
