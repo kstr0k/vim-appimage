@@ -73,5 +73,7 @@ jobs:
           if [ -n "${vim_forced_tag}" ]; then
             vim_tag=$vim_forced_tag
           fi
-          prev_vim_tag="${{ fromJSON(steps.prev-vim-tag.outputs.json).data.appimage.object.message }}"
+          IFS= read -r prev_vim_tag <<'EOTAGMSG'
+          ${{ fromJSON(steps.prev-vim-tag.outputs.json).data.appimage.object.message }}
+          EOTAGMSG
           echo 'tags:' "(ours=${prev_vim_tag})" "(vim=${vim_tag})"
