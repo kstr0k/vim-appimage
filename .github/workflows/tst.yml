@@ -45,5 +45,5 @@ jobs:
         id: check-updates
         run: |
           printf '%s' 'prev json:'; cat <<'EOF'
-          ${{ toJSON(fromJSON(steps.latest-tags.outputs.json).data) }}
+          ${{ toJSON(fromJSON(steps.latest-tags.outputs.json).data.appimage.refs.edges[1].node.name) }}
           EOF
