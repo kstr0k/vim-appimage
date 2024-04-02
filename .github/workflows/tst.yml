@@ -36,7 +36,7 @@ jobs:
                 }
               }
             }
-          '
+          ')
           printf '%s=%s\n' 'data' "$json" | tee -a "$GITHUB_OUTPUT"
 
       - name: Check updates
