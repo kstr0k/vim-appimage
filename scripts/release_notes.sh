@@ -67,7 +67,7 @@ ln -s ~/gvim.AppDir/AppRun.extracted ~/bin/vim
 
 ### Optional libraries
 
-To use Vim's dynamic interface to Perl, Python2, Python3.10, Ruby 3, or Lua, make sure your system provides the needed dynamic libraries (packages like \`libperl* libpython2* libpython3* liblua5* libruby*\` from your distribution) as those are **not** distributed with the images (to keep their size reasonable among other reasons).
-
-Vim will run without those libraries / languages, but plugins that require them obviosuly won't. You can install those interpreters later on your system if you decide you need them.
+This Vim build was configured with Perl 5.34, Python 3.8+, Ruby 3, and Lua 5.4 interfaces and was compiled on Ubuntu 22.04. If your system runs this exact version of Ubuntu (or some compatible flavor), and has the corresponding interpreter packages installed, they will work like with a native Vim distro package. Otherwise,
+* for Python 3, \`set pythonthreedll=libpython3.11.so\` or similar (use the shell command \`locate '*libpython3*.so'\`)
+* the other interpreter interfaces will work (see e.g. \`:help perl\`), because the appimage embeds their runtime libraries (unlike for Python); however they will not be able to access their default / base modules (which may or may not matter).
 EOF
