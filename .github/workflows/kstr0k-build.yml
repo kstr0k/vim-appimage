@@ -31,8 +31,8 @@ jobs:
           GQL_Q1: |
             query($myowner: String!, $myrepo: String!) {
               appimage: repository(owner: $myowner, name: $myrepo) {
-                ref(qualifiedName: "refs/tags/kstr0k-latest-release") {
-                  target { oid }
+                releases(first: 1, orderBy: { field: CREATED_AT, direction: DESC }) {
+                  nodes { name }
                 }
               }
               vim: repository(owner: "vim", name: "vim") {
@@ -48,25 +48,6 @@ jobs:
           json=$json
           EOGHO
 
-      - name: Get previous release vim tag
-        id: query-prev-release
-        env:
-          MYREPO: ${{ github.event.repository.name }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GQL_Q2: |
-            query($myowner: String!, $myrepo: String!, $tag_oid: GitObjectID) {
-              appimage: repository(owner: $myowner, name: $myrepo) {
-                object(oid: $tag_oid ) { ... on Tag { message }}
-              }
-            }
-        run: |
-          json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" \
-            -F tag_oid=${{ fromJSON(steps.query-tags.outputs.json).data.appimage.ref.target.oid }} \
-            -f query="$GQL_Q2")
-          tee -a "$GITHUB_OUTPUT" <<EOGHO
-          json=$json
-          EOGHO
-
       - name: Output tags
         id: output-tags
         run: |
@@ -75,9 +56,10 @@ jobs:
           if [ -n "${vim_forced_tag}" ]; then
             vim_tag=$vim_forced_tag
           fi
-          IFS= read -r prev_vim_tag <<'EOTAGMSG'
-          ${{ fromJSON(steps.query-prev-release.outputs.json).data.appimage.object.message }}
-          EOTAGMSG
+          IFS= read -r prev_vim_tag <<'EOVAL'
+          ${{ fromJSON(steps.query-tags.outputs.json).data.appimage.releases.nodes[0].name }}
+          EOVAL
+          prev_vim_tag=$(printf '%s' "$prev_vim_tag" | sed -ne 's@.* \(v[1-9][0-9.]\+\).*@\1@p')
           tee -a "$GITHUB_OUTPUT" <<EOGHO
           prev_vim_tag=${prev_vim_tag}
           vim_tag=${vim_tag}
@@ -152,16 +134,13 @@ jobs:
             echo 'Changes committed'
           fi
           git tag -f "${kstr0k_tag}"  # release tag
-          git tag -f kstr0k-latest-release -m "${vim_tag}"  # annotated; contents used next time
-          if git push --atomic -u origin "${GITHUB_REF_NAME}" "${kstr0k_tag}"; then
-            git push -f -u origin kstr0k-latest-release
-          fi
+          git push --atomic -u origin "${GITHUB_REF_NAME}" "${kstr0k_tag}"
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           body_path: release.body
-          name: 'Custom vim-appimage: ${{ needs.get-tags-job.outputs.kstr0k_tag }}'
+          name: 'vim-appimage: ${{ needs.get-tags-job.outputs.kstr0k_tag }}'
           tag_name: ${{ needs.get-tags-job.outputs.kstr0k_tag }}
           files: |
             *.AppImage
