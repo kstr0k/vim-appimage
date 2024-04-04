@@ -67,9 +67,9 @@ ln -s ~/gvim.AppDir/AppRun.extracted ~/bin/vim
 
 ### Interpreter interfaces
 
-The Vim / GVim AppImage's are compiled with Vim interfaces for Perl 5.30, Python 3.8+, Ruby 2.7, and Lua 5.3 and built on Ubuntu 20.04 ("focal"). If your system runs this exact version of Ubuntu (or some compatible flavor), and has the corresponding interpreter packages installed, they will work just as in a native Vim distro package.
+The Vim / GVim AppImage's are compiled with Vim interfaces for Perl 5.34, Python 3.8+, Ruby 3, and Lua 5.4 and built on Ubuntu 22.04 LTS (jammy). If your system runs this exact version of Ubuntu (or some compatible flavor), and has the corresponding interpreter packages installed, they will work just as in a native Vim distro package.
 
 Otherwise,
-* for Python 3: install it on your system. In Vim, \`set pythonthreedll=libpython3.10.so\` or similar (use the shell command \`sudo ldconfig -p | grep libpython3\` to find the library name). See \`:help +python3/dyn-stable\`.
+* for Python 3: install it on your system. In Vim, \`set pythonthreedll=libpython3.11.so\` or similar (use the shell command \`sudo ldconfig -p | grep libpython3\` to find the library name). See \`:help +python3/dyn-stable\`.
 * for any interpreter other than Python: the appimage embeds a version of its runtime. The Vim interface will work (see e.g. \`:help lua\`, \`:help perl\`, \`:help ruby\`), however it won't have access to the default / base modules (with various effects for each interpreter). Any interpreter modules (base and add-ons) installed on your system will be ignored and are most likely not compatible with the runtime version embedded in the AppImage.
 EOF
