@@ -1,0 +1,77 @@
+#!/bin/sh
+set -uex
+
+# run from downloads dir
+
+# supply as env vars to change
+: "${appimg_dir:=/usr/local/lib/appimage/bin}"
+: "${extracted_dir:=/opt}"
+
+yesno() {
+  local ans
+  printf %s "$1" ' (y/N)? '
+  IFS= read -r ans
+  case "$ans" in (y|Y) return 0 ;; (*) return 1 ;; esac
+}
+
+edit_line() {  # args: prompt initial
+ exec bash -c 'IFS= read -r -ep "$1" -i "$2" ans; printf %s\\n "$ans"' "$@"
+}
+
+set_appimg_dir() {
+  if [ ! -d "$appimg_dir" ]; then
+    appimg_dir=$(edit_line 'move appimages to: ' "$appimg_dir")
+    mkdir -p "$appimg_dir"
+  fi
+}
+
+
+## CPS implementation
+
+cps_main() {
+  process_appimgs "$@"
+}
+
+process_appimgs() {
+  local reset_argv a
+  reset_argv=true
+  for a; do
+    a=$(readlink -f "$a")
+    if "$reset_argv"; then set --; reset_argv=false; fi
+    [ -f "$a" ] || continue
+    chmod +x "$a"
+    (cd /tmp; "$a" --appimage-extract)
+    set_appimg_dir
+    sudo mv -i "$a" "$appimg_dir"/
+    a=${a%%-*}.AppDir
+    mv /tmp/squashfs-root "$a"
+    set -- "$a" "$@"
+  done
+
+  chk_any "$@"
+}
+
+chk_any() {
+  if [ "$#" = 0 ]; then
+    local repo rel
+    repo='https://github.com/kstr0k/vim-appimage'
+    rel=$(git ls-remote "$repo" | awk '/kstr0k-appimage$/{print $2}' | sort -r --version-sort | sed -ne 's@^refs/tags/@@p;q')
+    exec $BROWSER "$repo/releases/tag/$rel"
+  fi
+  install_appdirs "$@"
+}
+
+install_appdirs() {
+  local d dst
+  sudo mkdir -p /opt
+  for d; do
+    dst=/opt/${d##*/}
+    if [ -e "$dst" ]; then
+      if ! yesno "rm -rf $dst"; then continue; fi
+      rm -rf "$dst"
+    fi
+    sudo mv "$d" "$dst"
+  done
+}
+
+cps_main "$@"
