@@ -3,10 +3,10 @@
 set -e
 
 patch_desktop_files()
-{
+(
 	# Remove duplicate keys from desktop file. This might occure while localisation
 	# for the desktop file is progressing.
-	pushd "${SOURCE_DIR}/runtime"
+	cd "${SOURCE_DIR}/runtime"
 	mv ${LOWERAPP}.desktop ${LOWERAPP}.desktop.orig
 	awk '{x=$0; sub(/=.*$/, "", x);if(!seen[x]++){print $0}}' ${LOWERAPP}.desktop.orig > ${LOWERAPP}.desktop
 	rm ${LOWERAPP}.desktop.orig
@@ -15,12 +15,11 @@ patch_desktop_files()
 		sed -i "s/^Icon=gvim/Icon=vim/" ${LOWERAPP}.desktop
 	fi
 	find . -xdev -name "vim48x48.png" -exec cp {} "${LOWERAPP}.png" \;
-	popd
-}
+)
 
 make_appimage()
-{
-	cd ${BUILD_BASE}
+(
+	cd "${BUILD_BASE}"
 	test -x ./linuxdeploy.appimage || ( \
 		wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage \
 			-O linuxdeploy.appimage \
@@ -44,23 +43,22 @@ make_appimage()
 		-i "${SOURCE_DIR}/runtime/${LOWERAPP}.png" \
 		${PLUGIN:-} \
 		--output appimage
-}
+)
 
 github_actions_deploy()
-{
+(
+	cd -P "${BUILD_BASE}"
 	if [ -n "$GITHUB_ACTIONS" ]; then
 		# Copy artifacts to $GITHUB_WORKSPACE
-		TARGET_NAME=$(find "$BUILD_BASE/" -type f -name "$APP-*.AppImage" -printf '%f\n')
-		echo "Copy $BUILD_BASE/$TARGET_NAME -> $GITHUB_WORKSPACE"
-		cp "$BUILD_BASE/$TARGET_NAME" "$GITHUB_WORKSPACE"
-		cp "$BUILD_BASE/$TARGET_NAME.zsync" "$GITHUB_WORKSPACE"
+		TARGET_NAME=$(find "$PWD/" -type f -name "$APP-*.AppImage" -printf '%f\n')
+		printf '%s\n' "Copy $BUILD_BASE/$TARGET_NAME -> $GITHUB_WORKSPACE"
+		cp "$TARGET_NAME" "$GITHUB_WORKSPACE"
+		cp "$TARGET_NAME.zsync" "$GITHUB_WORKSPACE"
 
 		# Github Release Notes
-		pushd "$script_dir"
-		. release_notes.sh > "$GITHUB_WORKSPACE/release.body"
-		popd
+		(cd "$script_dir"; . release_notes.sh > "$GITHUB_WORKSPACE/release.body")
 	fi
-}
+)
 
 script_dir=$(dirname "$(readlink -f "$0")")
 
