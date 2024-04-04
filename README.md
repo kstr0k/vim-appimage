@@ -1,28 +1,17 @@
-[![Build Status](https://github.com/vim/vim-appimage/workflows/Release%20AppImage/badge.svg)](https://github.com/vim/vim-appimage/actions?query=workflow%3A%22Release+AppImage%22)
+[![Build Status](https://github.com/kstr0k/vim-appimage/workflows/Release%20AppImage/badge.svg)](https://github.com/kstr0k/vim-appimage/actions?query=workflow%3A%22Release+AppImage%22)
 
 # Vim AppImage Repository
 
-This is a project for building a 64bit Gvim AppImage from the latest Vim snapshots.
-AppImage is a form of cross-distribution packaging format that can be run
-everywhere by simply downloading the image and starting it. For more
-information about the package format see here: [AppImage](https://appimage.org).
+**Note**: this is a *fork* of the [official vim/vim-appimage](https://github.com/vim/vim-appimage/) repo. It uses a newer Ubuntu base image (22.04 "jammy" &mdash; avoiding some warnings when running GVim on current Linux distros).
 
-The image is based on Ubuntu ~~18.04 LTS bionic~~ 20.04 LTS bionic (since PR #47,
-because Github retired the Ubuntu 18.04 images in April 2023)
+This project builds 64bit Vim &amp; Gvim AppImage releases from the latest Vim snapshots.  AppImage (https://appimage.org/) is a cross-distribution packaging format that runs from a single file on "any" system (in practice, "too different" distros might not be compatible).
 
-It most likely won't work on older distributions. If you require a Vim appimage,
-that runs on older distributions, you can download the latest Ubuntu 18.04 based
-installation [here: v9.0.1413](https://github.com/vim/vim-appimage/releases/tag/v9.0.1413)
+[Download](releases) and execute the most recent GVim AppImage to run GVim (previous releases in this repo go back to Vim `v9.1.0228`). It most likely won't work on old distributions &mdash; you could try the [vim/vim-appimage](https://github.com/vim/vim-appimage/) repo, which currently builds on Ubuntu 20.04, and used to build on 18.04 up to [release `v9.0.1413`](https://github.com/vim/vim-appimage/releases/tag/v9.0.1413).
 
-[Download](https://github.com/vim/vim-appimage/releases) and execute the
-most recent `GVim-*.AppImage` file to run GVim.
-
-If you want a terminal Vim, just create a symbolic link with a name starting with "vim". Like:
-```
-ln -s GVim-*.AppImage vim.appimage
-```
-
-Then start `vim.appimage` to get a terminal Vim.
+See the release notes for running
+* terminal Vim from the GVim appimage
+* the separate Vim AppImage built with no X11 dependencies (but no X11 support)
+* locally-extracted AppImages
 
 The vim / gvim AppImage's are built with Vim interfaces for Perl, Python3, Ruby
 and Lua. See the release notes for usage and details.
