@@ -10,6 +10,7 @@ SRCDIR=$script_dir/../vim/src
 
 FEATURES=huge
 export CFLAGS="-Wno-deprecated-declarations"
+NPROC=$(getconf _NPROCESSORS_ONLN)
 
 typeset -a CFG_OPTS
 CFG_OPTS+=( "--enable-perlinterp" )
@@ -20,39 +21,25 @@ CFG_OPTS+=( "--enable-luainterp" )
 CFG_OPTS+=( "--enable-tclinterp" )
 CFG_OPTS+=( "--prefix=/usr" )
 
-NPROC=$(getconf _NPROCESSORS_ONLN)
-
 # Apply experimental patches
 apply_patches() (
-shopt -s nullglob
 cd "${SRCDIR}"/..
-for i in ../patch/*.patch; do git apply -v "$i"; done
+for i in ../patch/*.patch; do
+  [ -r "$i" ] && git apply -v "$i"
+done
 )
 
-
-# Build Vim - no X11
-build_vim() (
+# Build Vim or GVim
+build_vim() (  # args: vim_or_gvim additional_configure_opts...
+local vim; vim=$1; shift
 cd "${SRCDIR}"
-rm -rf vim
-SHADOWDIR=vim make -e shadow
-cd vim
-ADDITIONAL_ARG="--without-x --enable-gui=no --enable-fail-if-missing"
-./configure --with-features=$FEATURES "${CFG_OPTS[@]}" $ADDITIONAL_ARG
-make -j$NPROC
-)
-
-# Build GVim
-build_gvim() (
-cd "${SRCDIR}"
-rm -rf gvim
-SHADOWDIR=gvim make -e shadow
-cd gvim
-ADDITIONAL_ARG="--enable-fail-if-missing"
-CFG_OPTS+=( "--enable-gui=gtk3" )
-./configure --with-features=$FEATURES "${CFG_OPTS[@]}" $ADDITIONAL_ARG
+rm -rf "$vim"
+SHADOWDIR="$vim" make -e shadow
+cd "$vim"
+./configure --enable-fail-if-missing --with-features="$FEATURES" "${CFG_OPTS[@]}" "$@"
 make -j$NPROC
 )
 
 apply_patches
-build_vim
-build_gvim
+build_vim vim  --enable-gui=no --without-x
+build_vim gvim --enable-gui=gtk3
