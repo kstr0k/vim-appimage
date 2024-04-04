@@ -62,13 +62,9 @@ github_actions_deploy()
 	fi
 }
 
-if [ -z "$1" ]; then
-  APP=GVim
-else
-  APP=$1
-fi
+script_dir=$(dirname "$(readlink -f "$0")")
 
-script_dir="$(cd "$(dirname "$0")" && pwd)"
+APP=${1:-GVim}
 
 if [ -n "$GITHUB_ACTIONS" ]; then
     echo "GitHub Actions detected"
