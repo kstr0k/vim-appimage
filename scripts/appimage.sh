@@ -2,6 +2,8 @@
 
 set -e
 
+script_dir=$(dirname "$(readlink -f "$0")")
+
 patch_desktop_files()
 {
 	# Remove duplicate keys from desktop file. This might occure while localisation
@@ -66,8 +68,6 @@ if [ -z "$1" ]; then
 else
   APP=$1
 fi
-
-script_dir="$(cd "$(dirname "$0")" && pwd)"
 
 if [ -n "$GITHUB_ACTIONS" ]; then
     echo "GitHub Actions detected"
