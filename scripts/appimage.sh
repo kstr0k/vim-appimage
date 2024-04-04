@@ -90,7 +90,9 @@ popd
 # uses the shadowdir from build_vim.sh
 pushd vim/src/"$LOWERAPP"
 
-GLIBC=$(find ${SOURCE_DIR} -type f -executable -exec strings {} \; | grep "^GLIBC_2" | sed s/GLIBC_//g | sort --version-sort | uniq | tail -n 1)
+GLIBC=$(find "${SOURCE_DIR}" -type f -executable -exec nm -j -D {} + 2>/dev/null | sed -ne 's/.*@GLIBC_2/2/p' | uniq | sort --version-sort -r -u | head -n 1)
+#GLIBC=$(/lib/x86_64-linux-gnu/libc.so.6 | sed -ne 's/.*GLIBC \(2\.[0-9][0-9]*\).*/\1/p;q')  # system version might be higher than actually required
+
 # Prepare some source files
 patch_desktop_files
 
