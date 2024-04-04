@@ -20,7 +20,7 @@ patch_desktop_files()
 
 make_appimage()
 {
-	cd ${BUILD_BASE}
+	cd "${BUILD_BASE}"
 	test -x ./linuxdeploy.appimage || ( \
 		wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage \
 			-O linuxdeploy.appimage \
@@ -89,7 +89,7 @@ LOWERAPP=${APP,,}
 popd
 
 # uses the shadowdir from build_vim.sh
-pushd vim/src/$LOWERAPP
+pushd vim/src/"$LOWERAPP"
 
 GLIBC=$(find ${SOURCE_DIR} -type f -executable -exec strings {} \; | grep "^GLIBC_2" | sed s/GLIBC_//g | sort --version-sort | uniq | tail -n 1)
 # Prepare some source files
