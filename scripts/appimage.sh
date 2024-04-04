@@ -11,12 +11,12 @@ patch_desktop_files()
 	# Remove duplicate keys from desktop file. This might occure while localisation
 	# for the desktop file is progressing.
 	cd "${VIM_DIR}/runtime"
-	mv ${LOWERAPP}.desktop ${LOWERAPP}.desktop.orig
-	awk '{x=$0; sub(/=.*$/, "", x);if(!seen[x]++){print $0}}' ${LOWERAPP}.desktop.orig > ${LOWERAPP}.desktop
-	rm ${LOWERAPP}.desktop.orig
+	mv "${LOWERAPP}".desktop "${LOWERAPP}".desktop.orig
+	unsorted_uniq <"${LOWERAPP}.desktop.orig" >"${LOWERAPP}".desktop
+	rm "${LOWERAPP}".desktop.orig
 
-	if [[ "$LOWERAPP" == "vim" ]]; then
-		sed -i "s/^Icon=gvim/Icon=vim/" ${LOWERAPP}.desktop
+	if [ "${LOWERAPP}" = vim ]; then
+		sed -i 's/^Icon=gvim/Icon=vim/' "${LOWERAPP}".desktop
 	fi
 	find . -xdev -name "vim48x48.png" -exec cp {} "${LOWERAPP}.png" \;
 )
@@ -24,15 +24,15 @@ patch_desktop_files()
 make_appimage()
 (
 	cd "${BUILD_BASE}"
-	test -x ./linuxdeploy.appimage || ( \
-		wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage \
-			-O linuxdeploy.appimage \
-		&& chmod +x linuxdeploy.appimage )
+	[ -x linuxdeploy.appimage ] ||
+		wget -O linuxdeploy.appimage -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+	chmod +x linuxdeploy.appimage
 
-	if [[ "$APP" == "GVim" ]]; then
-		wget -c "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
+	if [ "$APP" = GVim ]; then
+		test -x linuxdeploy-plugin-gtk.sh ||
+			wget -q 'https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh'
 		chmod +x linuxdeploy-plugin-gtk.sh
-		PLUGIN="--plugin gtk"
+		PLUGIN='--plugin gtk'
 	fi
 
 	cp "$script_dir"/../assets/AppRun \
@@ -87,7 +87,7 @@ LOWERAPP=${APP,,}
 popd
 
 # uses the shadowdir from build_vim.sh
-pushd vim/src/$LOWERAPP
+pushd vim/src/"$LOWERAPP"
 
 GLIBC=$(find "${VIM_DIR}" -type f -executable -exec nm -j -D {} + 2>/dev/null | sed -ne '/@GLIBC_2[.]/{ s/.*@GLIBC_//; /^2[.][0-9][.]/d; /^2[.][0-9]$/d; p }' | uniq | sort --version-sort -r -u | head -n 1)
 #GLIBC=$(/lib/x86_64-linux-gnu/libc.so.6 | sed -ne 's/.*GLIBC \(2\.[0-9][0-9]*\).*/\1/p;q')  # system version might be higher than actually required
