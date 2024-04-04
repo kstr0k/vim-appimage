@@ -5,7 +5,7 @@
 
 set -e
 
-script_dir="$(cd "$(dirname "$0")" && pwd)"
+script_dir=$(dirname "$(readlink -f "$0")")
 SRCDIR=$script_dir/../vim/src
 
 FEATURES=huge
