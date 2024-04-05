@@ -22,6 +22,27 @@ patch_desktop_files()
 	cp "$png" "${LOWERAPP}".png
 )
 
+deploy_pkg_copyright() {
+  local dst lib docdir copyfile
+  dst=$1; lib=$2; shift 2
+  docdir=usr/share/doc/"$lib"
+  copyfile="$docdir"/copyright
+  if [ -r /"$copyfile" ]; then
+    mkdir -p "$dst"/"$docdir"
+    cp -a /"$copyfile" "$dst"/"$copyfile"
+  fi
+}
+deploy_copyrights() {
+  local dst lib
+  dst=$1; shift
+  find "$dst"/usr/lib -type f -name '*.so*' -printf '*/%f\n' |
+    xargs -d'\n' -t -n10 -P"$(getconf _NPROCESSORS_ONLN)" dpkg-query -S |
+    sed -e 's@:.*@@' | uniq | LC_ALL=C sort -u |
+    while IFS= read -r lib; do
+      deploy_pkg_copyright "$dst" "$lib"
+    done
+}
+
 make_appimage()
 (
 	cd "${BUILD_BASE}"
@@ -43,7 +64,8 @@ make_appimage()
 	export LDAI_UPDATE_INFORMATION="gh-releases-zsync|vim|vim-appimage|latest|$APP-*x86_64.AppImage.zsync"
 	# ^ linuxdeploy's internal appimage plugin uses these
 
-	LDAI_OUTPUT="$APPIMG_FNAME" ./linuxdeploy.appimage --appdir "$APP.AppDir" \
+	LDAI_OUTPUT="$APPIMG_FNAME" DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1 ./linuxdeploy.appimage \
+		--appdir "$APP.AppDir" \
 		-d "${VIM_DIR}/runtime/${LOWERAPP}.desktop" \
 		-i "${VIM_DIR}/runtime/${LOWERAPP}.png" \
 		${PLUGIN:-} \
@@ -54,7 +76,11 @@ make_appimage()
 	rm -rf squashfs-root
 	./"$APPIMG_FNAME" --appimage-extract >/dev/null
 	mv "$APPIMG_FNAME" "${APPIMG_FNAME%.*}".ldai  # available for debugging
-	[ -e appimagetool ] || wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+
+	deploy_copyrights squashfs-root
+
+	[ -e appimagetool ] ||
+		wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
 	chmod u+x appimagetool
 	./appimagetool -u "${LDAI_UPDATE_INFORMATION}" --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 256k --mksquashfs-opt -no-progress squashfs-root "$APPIMG_FNAME"
 )
