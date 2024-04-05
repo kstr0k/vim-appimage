@@ -60,6 +60,24 @@ github_actions_deploy()
 	fi
 )
 
+make_and_deploy() (
+# uses the shadowdir from build_vim.sh
+cd vim/src/"$LOWERAPP"
+
+GLIBC=$(find "${SOURCE_DIR}" -type f -executable -exec nm -j -D {} + 2>/dev/null | sed -ne 's/.*@GLIBC_2/2/p' | uniq | sort --version-sort -r -u | head -n 1)
+#GLIBC=$(/lib/x86_64-linux-gnu/libc.so.6 | sed -ne 's/.*GLIBC \(2\.[0-9][0-9]*\).*/\1/p;q')  # system version might be higher than actually required
+
+# Prepare source files
+patch_desktop_files
+make install DESTDIR="${BUILD_BASE}/${APP}.AppDir" >/dev/null
+
+# Create Appimage
+make_appimage
+
+# Perform Github Deployment
+github_actions_deploy
+)
+
 script_dir=$(dirname "$(readlink -f "$0")")
 
 APP=${1:-GVim}
@@ -69,8 +87,8 @@ if [ -n "$GITHUB_ACTIONS" ]; then
     BUILD_BASE=$HOME
 else
     BUILD_BASE="$script_dir/../build"
-    mkdir -p "$BUILD_BASE"
 fi
+mkdir -p "$BUILD_BASE"
 
 pushd vim
 GIT_REV="$(git rev-parse --short HEAD)"
@@ -82,21 +100,4 @@ ARCH=$(arch)
 LOWERAPP=${APP,,}
 popd
 
-# uses the shadowdir from build_vim.sh
-pushd vim/src/"$LOWERAPP"
-
-GLIBC=$(find "${SOURCE_DIR}" -type f -executable -exec nm -j -D {} + 2>/dev/null | sed -ne 's/.*@GLIBC_2/2/p' | uniq | sort --version-sort -r -u | head -n 1)
-#GLIBC=$(/lib/x86_64-linux-gnu/libc.so.6 | sed -ne 's/.*GLIBC \(2\.[0-9][0-9]*\).*/\1/p;q')  # system version might be higher than actually required
-
-# Prepare some source files
-patch_desktop_files
-
-make install DESTDIR="${BUILD_BASE}/${APP}.AppDir" >/dev/null
-
-# Create Appimage
-make_appimage
-
-# Perform Github Deployment
-github_actions_deploy
-
-popd
+make_and_deploy
