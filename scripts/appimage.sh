@@ -43,6 +43,15 @@ make_appimage()
 		-i "${SOURCE_DIR}/runtime/${LOWERAPP}.png" \
 		${PLUGIN:-} \
 		--output appimage
+
+	chmod u+x "$OUTPUT"
+	# somehow linuxdeploy manages to change the AppDir *after* packing it: extract the AppImage
+	rm -rf squashfs-root
+	./"$OUTPUT" --appimage-extract >/dev/null
+	mv "$OUTPUT" "${OUTPUT%.*}".ldai  # available for debugging
+	[ -e appimagetool ] || wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
+	chmod u+x appimagetool
+	./appimagetool -u "$UPDATE_INFORMATION" --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 1M --mksquashfs-opt -no-progress squashfs-root "$OUTPUT"
 )
 
 github_actions_deploy()
