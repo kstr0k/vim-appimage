@@ -38,7 +38,8 @@ make_appimage()
 	export UPDATE_INFORMATION="gh-releases-zsync|vim|vim-appimage|latest|$APP-*x86_64.AppImage.zsync"
 	export OUTPUT="${APP}-${VERSION}.glibc${GLIBC}-${ARCH}.AppImage"
 
-	./linuxdeploy.appimage --appdir "$APP.AppDir" \
+	DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1 ./linuxdeploy.appimage \
+		--appdir "$APP.AppDir" \
 		-d "${SOURCE_DIR}/runtime/${LOWERAPP}.desktop" \
 		-i "${SOURCE_DIR}/runtime/${LOWERAPP}.png" \
 		${PLUGIN:-} \
@@ -46,12 +47,22 @@ make_appimage()
 
 	chmod u+x "$OUTPUT"
 	# somehow linuxdeploy manages to change the AppDir *after* packing it: extract the AppImage
+	rm -rf squashfs-root
 	./"$OUTPUT" --appimage-extract >/dev/null
 	mv "$OUTPUT" "${OUTPUT%.*}".ldai  # available for debugging
+
+	for lib in $(dpkg-query -S $(find squashfs-root/usr/lib -type f -name '*.so*' -printf '*/%f\n' ) | sed -e 's@:.*@@' | uniq | LC_ALL=C sort -u); do
+		docdir=usr/share/doc/"$lib"
+		copyfile="$docdir"/copyright
+		if [ -r /"$copyfile" ]; then
+			mkdir -p squashfs-root/"$docdir"
+			cp -a /"$copyfile" squashfs-root/"$copyfile"
+		fi
+	done
+
 	[ -e appimagetool ] || wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
 	chmod u+x appimagetool
 	./appimagetool -u "$UPDATE_INFORMATION" --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 9 --mksquashfs-opt -b --mksquashfs-opt 1M  squashfs-root "$OUTPUT"
-	rm -rf squashfs-root
 )
 
 github_actions_deploy()
