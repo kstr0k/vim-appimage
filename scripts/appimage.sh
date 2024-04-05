@@ -20,15 +20,15 @@ patch_desktop_files()
 make_appimage()
 (
 	cd "${BUILD_BASE}"
-	test -x ./linuxdeploy.appimage || ( \
-		wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage \
-			-O linuxdeploy.appimage \
-		&& chmod +x linuxdeploy.appimage )
+	test -x linuxdeploy.appimage ||
+		wget -O linuxdeploy.appimage -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+	chmod +x linuxdeploy.appimage
 
-	if [[ "$APP" == "GVim" ]]; then
-		wget -c "https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh"
+	if [ "$APP" = GVim ]; then
+		test -x linuxdeploy-plugin-gtk.sh ||
+			wget -q 'https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh'
 		chmod +x linuxdeploy-plugin-gtk.sh
-		PLUGIN="--plugin gtk"
+		PLUGIN='--plugin gtk'
 	fi
 
 	cp "$script_dir"/../assets/AppRun \
