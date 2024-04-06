@@ -67,6 +67,10 @@ jobs:
           updated=$([ ${prev_vim_tag} != ${vim_tag} ] && echo true)
           EOGHO
 
+      - name: Check release tag available
+        run: |
+          ! git rev-parse "${release_tag}^{tag}"
+
   create-appimage-job:
     runs-on: ubuntu-22.04
 
