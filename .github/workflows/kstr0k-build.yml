@@ -86,6 +86,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check release tag available
+        run: |
+          ! git rev-parse "${release_tag}^{tag}"
+
       - name: Install packages
         run: sudo bash -e scripts/install-distro-build-deps.sh
 
