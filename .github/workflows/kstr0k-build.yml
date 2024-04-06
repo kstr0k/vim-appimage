@@ -11,6 +11,7 @@ on:
 
 env:
   MYOWNER: ${{ github.repository_owner }}
+  MYREPO: ${{ github.event.repository.name }}
 
 jobs:
   get-tags-job:
@@ -26,7 +27,6 @@ jobs:
       - name: Get latest tags
         id: query-tags
         env:
-          MYREPO: ${{ github.event.repository.name }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GQL_Q1: |
             query($myowner: String!, $myrepo: String!) {
