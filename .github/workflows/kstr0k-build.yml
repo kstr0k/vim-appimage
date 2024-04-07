@@ -76,12 +76,9 @@ jobs:
 
     env:
       CC: gcc
-      TERM: xterm
-      DISPLAY: ':99'
-      DEBIAN_FRONTEND: noninteractive
-      VIM_REF: ${{ needs.get-tags-job.outputs.prev_vim_tag }}
-      vim_tag: ${{ needs.get-tags-job.outputs.vim_tag }}
-      release_tag: ${{ needs.get-tags-job.outputs.release_tag }}
+      vim_tag: '${{ needs.get-tags-job.outputs.vim_tag }}'
+      prev_vim_tag: '${{ needs.get-tags-job.outputs.prev_vim_tag }}'
+      release_tag: '${{ needs.get-tags-job.outputs.release_tag }}'
 
     steps:
       - uses: actions/checkout@v4
@@ -91,12 +88,12 @@ jobs:
           ! git rev-parse "${release_tag}^{}"
 
       - name: Install packages
-        run: sudo scripts/install-distro-build-deps.sh
+        run: |
+          sudo scripts/install-distro-build-deps.sh
 
       - name: Update Vim
         run: |
-          git submodule update --init
-          git submodule update --remote
+          git submodule update --init --remote
           git -C vim switch --detach "${vim_tag}"
 
       - name: Set up system
@@ -105,7 +102,8 @@ jobs:
           sudo bash vim/ci/setup-xvfb.sh
 
       - name: Build Vim
-        run: bash -e scripts/build_vim.sh
+        run: |
+          scripts/build_vim.sh
 
       - name: Vim Version
         run: |
@@ -113,17 +111,24 @@ jobs:
           vim/src/gvim/vim --version
 
       - name: Test Vim
+        env:
+          TERM: xterm
+          DISPLAY: ':99'
         timeout-minutes: 20
         run: |
           make -C vim/src/gvim test
-          # dump failed screen tests
+
+      - name: Dump failed screen tests
+        run: |
           bash scripts/dump_failed_screentests.sh
 
       - name: Create GVim AppImage
-        run: bash -e scripts/appimage.sh GVim
+        run: |
+          bash -e scripts/appimage.sh GVim
 
       - name: Create Vim AppImage
-        run: bash -e scripts/appimage.sh Vim
+        run: |
+          bash -e scripts/appimage.sh Vim
 
       - name: Commit and push
         id: commit
