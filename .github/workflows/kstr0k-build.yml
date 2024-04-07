@@ -139,9 +139,7 @@ jobs:
           git config --local user.name 'github-actions[bot]'
           git config --local user.email 'github-actions[bot]@users.noreply.github.com'
           git remote set-url origin "https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}"
-          if git commit -m "Vim: ${vim_tag}" -m "${vim_summary}" -m "${workflow_url}" vim; then
-            echo 'Changes committed'
-          fi
+          git commit -m "Vim: ${vim_tag}" -m "${vim_summary}" -m "${workflow_url}" vim
           git tag -f "${release_tag}"  # release tag
           git push --atomic -u origin "${GITHUB_REF_NAME}" "${release_tag}"
 
