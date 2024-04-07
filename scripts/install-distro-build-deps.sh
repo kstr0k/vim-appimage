@@ -1,6 +1,6 @@
 #!/bin/sh
 set -ue
-sudo apt update && sudo apt install -y \
+apt update && apt install -y \
   libfuse2 \
   autoconf \
   lcov \
