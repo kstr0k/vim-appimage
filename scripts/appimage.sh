@@ -56,8 +56,11 @@ make_appimage()
 	   "$script_dir"/../assets/AppRun.extracted \
 	   "${APP}".AppDir/
 
-	export LDAI_UPDATE_INFORMATION="gh-releases-zsync|vim|vim-appimage|latest|$APP-*x86_64.AppImage.zsync"
+	export LDAI_UPDATE_INFORMATION
 	# ^ linuxdeploy's internal appimage plugin uses these
+	if [ -n "${MYOWNER:-}" ] && [ -z "${LDAI_UPDATE_INFORMATION:-}" ]; then
+        	LDAI_UPDATE_INFORMATION="gh-releases-zsync|$MYOWNER|$MYREPO|latest|$APP-*x86_64.AppImage.zsync"
+	fi
 
 	LDAI_OUTPUT="$APPIMG_FNAME" DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1 ./linuxdeploy.appimage \
 		--appdir "$APP.AppDir" \
@@ -77,7 +80,7 @@ make_appimage()
 	[ -e appimagetool ] ||
 		wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
 	chmod u+x appimagetool
-	./appimagetool -u "$LDAI_UPDATE_INFORMATION" --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 1M --mksquashfs-opt -no-progress squashfs-root "$APPIMG_FNAME"
+	./appimagetool ${LDAI_UPDATE_INFORMATION:+-u "$LDAI_UPDATE_INFORMATION"} --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 1M --mksquashfs-opt -no-progress squashfs-root "$APPIMG_FNAME"
 )
 
 github_actions_deploy()
