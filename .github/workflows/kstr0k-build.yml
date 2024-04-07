@@ -95,8 +95,12 @@ jobs:
 
       - name: Update Vim
         run: |
-          git submodule update --init --remote
-          git -C vim switch --detach "${vim_tag}"
+          git submodule update --init --depth 10 vim
+          cd vim
+          since=$(git log -1 --pretty=%cd @~1)
+          git fetch -j2 --shallow-since="$since" --no-tags origin tag "${vim_tag}" tag "${prev_vim_tag}"
+          git switch --detach "${vim_tag}"
+          git log --pretty=oneline --abbrev-commit "${prev_vim_tag}^..@"
 
       - name: Set up system
         run: |
