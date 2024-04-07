@@ -86,7 +86,6 @@ BUILD_BASE=$script_dir/../build
 mkdir -p "$BUILD_BASE"
 : "${GLIBC:=$(compute_glibc_version)}"
 
-GIT_REV="$(git -C "${SOURCE_DIR}" rev-parse --short HEAD)"
 # should use tag if available, else use 7-hexdigit hash
 : "${VERSION:="$(git -C "${SOURCE_DIR}" describe --tags --abbrev=0 || git describe --always)"}"
 : "${APPIMG_FNAME_SFX:=${VERSION}.glibc${GLIBC}-$(arch).AppImage}"
