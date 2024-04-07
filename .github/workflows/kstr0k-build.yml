@@ -93,8 +93,8 @@ jobs:
 
       - name: Update Vim
         run: |
-          git submodule update --init --remote
-          git -C vim switch --detach "${vim_tag}"
+          scripts/update-submodules.sh
+          git -C vim log --pretty=oneline --abbrev-commit "${prev_vim_tag}^..@"
 
       - name: Set up system
         run: |
