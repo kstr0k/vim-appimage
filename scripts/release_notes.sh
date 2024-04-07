@@ -1,14 +1,21 @@
 #!/bin/sh
 set -e
 
-APPIMG_FNAME_SFX=${VERSION}.glibc${GLIBC}-x86_64.AppImage
+cd "${VIM_DIR?}"
+: "${VERSION?}"
+: "${GLIBC?}"
+: "${APPIMG_FNAME_SFX?}"
+: "${release_tag?}"
+: "${prev_vim_tag?}"
+
+GIT_REV="$(git rev-parse --short @)"
 
 vimcommiturl="https://github.com/vim/vim/commit/"
 dl_counter="![Github Downloads (by Release)](https://img.shields.io/github/downloads/$GITHUB_REPOSITORY/${release_tag}/total.svg)"
 version_info="**GVim: $VERSION** - Vim git commit: [$GIT_REV](${vimcommiturl}${GIT_REV}) - glibc: ${GLIBC}"
 gha_build="[GitHub Actions Logfile]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)"
 
-vimlog_md=$(git -C ../vim log --pretty='format:%H %s' $VIM_REF..$GIT_REV | sed \
+vimlog_md=$(git log --pretty='format:%H %s' "${prev_vim_tag}..$GIT_REV" | sed \
     -e 's/[][_*^<`\\]/\\&/g' \
     -e "s#^\([0-9a-f]*\) patch \([0-9.a-z]*\)#* [\2]($vimcommiturl\1)#" \
     -e "s#^\([0-9a-f]*\) \(.*\)#* [\2]($vimcommiturl\1)#")
