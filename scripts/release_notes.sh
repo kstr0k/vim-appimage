@@ -1,5 +1,8 @@
 #!/bin/sh
 set -e
+
+APPIMG_FNAME_SFX=${VERSION}.glibc${GLIBC}-x86_64.AppImage
+
 vimcommiturl="https://github.com/vim/vim/commit/"
 dl_counter="![Github Downloads (by Release)](https://img.shields.io/github/downloads/$GITHUB_REPOSITORY/${release_tag}/total.svg)"
 version_info="**GVim: $VERSION** - Vim git commit: [$GIT_REV](${vimcommiturl}${GIT_REV}) - glibc: ${GLIBC}"
@@ -21,8 +24,8 @@ $dl_counter<br><br>Version Information:<br>$version_info<br><br>$gha_build
 
 ### Downloads
 This release provides the following Artifacts:
-* [![GVim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${release_tag}/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${release_tag}/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage)
-* [![Vim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${release_tag}/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${release_tag}/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage)
+* [![GVim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${release_tag}/GVim-${APPIMG_FNAME_SFX}.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${release_tag}/GVim-${APPIMG_FNAME_SFX})
+* [![Vim-${VERSION}.Appimage](https://img.shields.io/github/downloads/${GITHUB_REPOSITORY}/${release_tag}/Vim-${APPIMG_FNAME_SFX}.svg?label=downloads&logo=vim)](https://github.com/${GITHUB_REPOSITORY}/releases/download/${release_tag}/Vim-${APPIMG_FNAME_SFX})
 <p/>
 
 ### Changelog
@@ -39,12 +42,12 @@ _Note_: The images are based on Ubuntu 22.04 LTS ("jammy") and most likely won't
 Download the AppImage, make it executable, then run it as you would run Vim (including any optional CLI arguments):
 \`\`\`bash
 URL='https://github.com/${GITHUB_REPOSITORY}/releases/download/${VERSION}/'
-wget -O /tmp/gvim.appimage "\$URL"/GVim-${VERSION}.glibc${GLIBC}-x86_64.AppImage
+wget -O /tmp/gvim.appimage "\$URL"/GVim-${APPIMG_FNAME_SFX}
 chmod +x /tmp/gvim.appimage
 /tmp/gvim.appimage
 
 # alternatively, download the Vim AppImage
-wget -O /tmp/vim.appimage "\$URL"/Vim-${VERSION}.glibc${GLIBC}-x86_64.AppImage
+wget -O /tmp/vim.appimage "\$URL"/Vim-${APPIMG_FNAME_SFX}
 chmod +x /tmp/vim.appimage
 /tmp/vim.appimage
 \`\`\`
