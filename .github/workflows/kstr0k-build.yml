@@ -128,13 +128,9 @@ jobs:
         run: |
           bash scripts/dump_failed_screentests.sh
 
-      - name: Create GVim AppImage
+      - name: Create GVim and Vim AppImage
         run: |
-          bash -e scripts/appimage.sh GVim
-
-      - name: Create Vim AppImage
-        run: |
-          bash -e scripts/appimage.sh Vim
+          bash -e scripts/appimage.sh GVim Vim
 
       - name: Commit and push
         id: commit
