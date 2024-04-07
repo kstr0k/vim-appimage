@@ -55,7 +55,8 @@ github_actions_deploy()
 		cp "$APPIMG_FNAME" "$APPIMG_FNAME".zsync "$GITHUB_WORKSPACE"
 	
 		# Github Release Notes
-		(cd "$script_dir"; . release_notes.sh > "$GITHUB_WORKSPACE/release.body")
+		RLS_BODY="$GITHUB_WORKSPACE/release.body"
+		[ -e "$RLS_BODY" ] || (. "$script_dir"/release_notes.sh > "$RLS_BODY")
 )
 
 make_and_deploy() (
