@@ -18,7 +18,8 @@ patch_desktop_files()
 	if [ "${LOWERAPP}" = vim ]; then
 		sed -i 's/^Icon=gvim/Icon=vim/' "${LOWERAPP}".desktop
 	fi
-	find . -xdev -name "vim48x48.png" -exec cp {} "${LOWERAPP}.png" \;
+	png=$(find . -xdev -name "vim48x48.png" -print -quit)
+	cp "$png" "${LOWERAPP}".png
 )
 
 make_appimage()
