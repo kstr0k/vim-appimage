@@ -39,6 +39,16 @@ deploy_copyrights() {
     done
 }
 
+extract_appimage() (  # args: appimg appdir
+  local appimg appdir
+  appimg=$(readlink -f "$1"); appdir=$2; shift 2
+  chmod u+x "$appimg"
+  local d; d=$(mktemp -d)
+  (cd "$d"; "$appimg" --appimage-extract >/dev/null)
+  mv "$d"/squashfs-root "$appdir"
+  rmdir "$d"
+)
+
 make_appimage()
 (
 	cd "${BUILD_BASE}"
@@ -69,19 +79,15 @@ make_appimage()
 		-i "${SOURCE_DIR}/runtime/${LOWERAPP}.png" \
 		${PLUGIN:-} \
 		--output appimage
-
-	chmod u+x "$APPIMG_FNAME"
-	# somehow linuxdeploy manages to change the AppDir *after* packing it: extract the AppImage
-	rm -rf squashfs-root
-	./"$APPIMG_FNAME" --appimage-extract >/dev/null
+	extract_appimage "$APPIMG_FNAME" "$APP".ldai.extracted
 	mv "$APPIMG_FNAME" "${APPIMG_FNAME%.*}".ldai  # available for debugging
 
-	deploy_copyrights squashfs-root
+	deploy_copyrights "$APP".ldai.extracted
 
 	[ -e appimagetool ] ||
 		wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
 	chmod u+x appimagetool
-	./appimagetool ${LDAI_UPDATE_INFORMATION:+-u "$LDAI_UPDATE_INFORMATION"} --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 256k --mksquashfs-opt -no-progress squashfs-root "$APPIMG_FNAME"
+	./appimagetool ${LDAI_UPDATE_INFORMATION:+-u "$LDAI_UPDATE_INFORMATION"} --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 256k --mksquashfs-opt -no-progress "$APP".ldai.extracted "$APPIMG_FNAME"
 )
 
 github_actions_deploy()
