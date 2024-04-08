@@ -97,10 +97,14 @@ github_actions_deploy()
 		# Copy artifacts to $GITHUB_WORKSPACE
 		printf '%s\n' "Copy $BUILD_BASE/$APPIMG_FNAME -> $GITHUB_WORKSPACE"
 		cp "$APPIMG_FNAME" "$APPIMG_FNAME".zsync "$GITHUB_WORKSPACE"
-	
-		# Github Release Notes
-		RLS_BODY="$GITHUB_WORKSPACE/release.body"
-		[ -e "$RLS_BODY" ] || (. "$script_dir"/release_notes.sh > "$RLS_BODY")
+)
+
+gen_release_notes() (
+  # Github Release Notes
+  [ -n "$GITHUB_ACTIONS" ] || return 0
+  RLS_BODY="$GITHUB_WORKSPACE/release.body"
+  ! [ -e "$RLS_BODY" ] || return 0
+  . "$script_dir"/release_notes.sh > "$RLS_BODY"
 )
 
 make_and_deploy() (
@@ -133,6 +137,8 @@ mkdir -p "$BUILD_BASE"
 # should use tag if available, else use 7-hexdigit hash
 : "${VERSION:="$(git -C "${SOURCE_DIR}" describe --tags --abbrev=0 || git describe --always)"}"
 : "${APPIMG_FNAME_SFX:=${VERSION}.glibc${GLIBC}-$(arch).AppImage}"
+
+gen_release_notes
 
 for APP; do
   LOWERAPP=${APP,,}
