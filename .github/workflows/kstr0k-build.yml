@@ -41,25 +41,21 @@ jobs:
                 }
               }
             }
+          jq_extract: >-
+            "vim_tag=" + .data.vim.refs.edges[0].node.name,
+            "prev_release_name<<_EOVAL_\n" + .data.appimage.releases.nodes[0].name + "\n_EOVAL_"
         run: |
-          json=$(gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" \
-            -f query="$GQL_Q1")
-          tee -a "$GITHUB_OUTPUT" <<EOGHO
-          json=$json
-          EOGHO
+          gh api graphql -F myowner="$MYOWNER" -F myrepo="$MYREPO" \
+            -f query="$GQL_Q1" --jq "$jq_extract" | tee -a "$GITHUB_ENV"
 
       - name: Output tags
         id: output-tags
         run: |
-          vim_tag=${{ fromJSON(steps.query-tags.outputs.json).data.vim.refs.edges[0].node.name }}
           vim_forced_tag=${{ github.event.inputs.vim_tag }}
           if [ -n "${vim_forced_tag}" ]; then
             vim_tag=$vim_forced_tag
           fi
-          IFS= read -r prev_vim_tag <<'EOVAL'
-          ${{ fromJSON(steps.query-tags.outputs.json).data.appimage.releases.nodes[0].name }}
-          EOVAL
-          prev_vim_tag=$(printf '%s' "$prev_vim_tag" | sed -ne 's@.* \(v[1-9][0-9.]\+\).*@\1@p')
+          prev_vim_tag=$(printf '%s' "$prev_release_name" | sed -ne 's@.* \(v[1-9][0-9.]\+\).*@\1@p;q')
           tee -a "$GITHUB_OUTPUT" <<EOGHO
           prev_vim_tag=${prev_vim_tag}
           vim_tag=${vim_tag}
