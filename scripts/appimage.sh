@@ -56,16 +56,8 @@ extract_appimage() (  # args: appimg appdir
 make_appimage()
 (
 	cd "${BUILD_BASE}"
-	[ -x linuxdeploy.appimage ] ||
-		wget -O linuxdeploy.appimage -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-	chmod +x linuxdeploy.appimage
 
-	if [ "$APP" = GVim ]; then
-		test -x linuxdeploy-plugin-gtk.sh ||
-			wget -q 'https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh'
-		chmod +x linuxdeploy-plugin-gtk.sh
-		PLUGIN='--plugin gtk'
-	fi
+	[ "$APP" = GVim ] && PLUGIN='--plugin gtk'
 
 	cp "$script_dir"/../assets/AppRun \
 	   "$script_dir"/../assets/AppRun.extracted \
@@ -77,7 +69,7 @@ make_appimage()
 	fi
 	# ^ linuxdeploy's internal appimage plugin uses these
 
-	LDAI_OUTPUT="$APPIMG_FNAME" DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1 ./linuxdeploy.appimage \
+	LDAI_OUTPUT="$APPIMG_FNAME" DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1 ../tools/linuxdeploy \
 		--appdir "$APP.AppDir" \
 		-d "${VIM_DIR}/runtime/${LOWERAPP}.desktop" \
 		-i "${VIM_DIR}/runtime/${LOWERAPP}.png" \
@@ -88,10 +80,10 @@ make_appimage()
 
 	deploy_copyrights "$APP".ldai.extracted
 
-	[ -e appimagetool ] ||
-		wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
-	chmod u+x appimagetool
-	./appimagetool ${LDAI_UPDATE_INFORMATION:+-u "${LDAI_UPDATE_INFORMATION}"} --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 256k --mksquashfs-opt -no-progress "$APP".ldai.extracted "$APPIMG_FNAME"
+	../tools/appimagetool \
+          ${LDAI_UPDATE_INFORMATION:+-u "${LDAI_UPDATE_INFORMATION}"} \
+          --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 256k --mksquashfs-opt -no-progress \
+          "$APP".ldai.extracted "$APPIMG_FNAME"
 )
 
 github_actions_deploy()
@@ -140,6 +132,7 @@ mkdir -p "$BUILD_BASE"
 : "${VERSION:="$(git -C "${VIM_DIR}" describe --tags --abbrev=0 || git describe --always)"}"
 : "${APPIMG_FNAME_SFX:=${VERSION}.glibc${GLIBC}-$(arch).AppImage}"
 
+(cd tools; "$script_dir"/download-tools.sh)
 gen_release_notes
 
 for APP; do
