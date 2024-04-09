@@ -107,6 +107,20 @@ jobs:
           sudo sysctl -w net.ipv6.conf.lo.disable_ipv6=0
           sudo bash vim/ci/setup-xvfb.sh
 
+      - name: Download tools
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p build; cd build
+          gh release download continuous -R AppImage/appimagetool \
+            -p appimagetool-x86_64.AppImage -O appimagetool
+          gh release download continuous -R linuxdeploy/linuxdeploy \
+            -p linuxdeploy-x86_64.AppImage -O linuxdeploy.appimage
+          # gh api -H 'Accept: application/vnd.github.raw' \
+          #   '/repos/linuxdeploy/linuxdeploy-plugin-gtk/contents/linuxdeploy-plugin-gtk.sh'
+          # undocumented 'raw' but 'raw+json' returns base64
+          chmod u+x *
+
       - name: Build Vim
         run: |
           bash -e scripts/build_vim.sh
