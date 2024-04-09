@@ -146,11 +146,12 @@ jobs:
           git push --atomic -u origin "${GITHUB_REF_NAME}" "${release_tag}"
 
       - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          body_path: release.body
-          name: 'vim-appimage: ${{ needs.get-tags-job.outputs.release_tag }}'
-          tag_name: ${{ needs.get-tags-job.outputs.release_tag }}
-          files: |
-            *.AppImage
-            *.zsync
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          release_tag: ${{ needs.get-tags-job.outputs.release_tag }}
+        run: |
+          gh release create "$release_tag" \
+            *.AppImage *.zsync \
+            -F release.body -t "vim-appimage: $release_tag"
+          printf '%s' 'Latest release: '
+          gh api 'repos/{owner}/{repo}/releases/latest' --jq '.html_url' || :
