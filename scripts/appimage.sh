@@ -53,12 +53,7 @@ make_appimage()
 (
 	cd "${BUILD_BASE}"
 
-	if [ "$APP" = GVim ]; then
-		test -x linuxdeploy-plugin-gtk.sh ||
-			wget -q 'https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh'
-		chmod +x linuxdeploy-plugin-gtk.sh
-		PLUGIN='--plugin gtk'
-	fi
+	[ "$APP" = GVim ] && PLUGIN='--plugin gtk'
 
 	cp "$script_dir"/../assets/AppRun \
 	   "$script_dir"/../assets/AppRun.extracted \
@@ -89,12 +84,12 @@ download_tools() (
 
   while [ "$#" != 0 ]; do
     if ! [ -e "$1" ]; then
-      wget -q -O "$1" "$2" && chmod u+x "$1" &
+      wget --no-verbose -O "$1" "$2" && chmod u+x "$1" &
     fi
+    shift 2
   done
 
   wait
-  chmod u+x appimagetool linuxdeploy.appimage
 )
 
 github_actions_deploy()
@@ -152,7 +147,8 @@ download_tools \
   linuxdeploy.appimage \
      'https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage' \
   appimagetool \
-     'https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage'
+     'https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage' \
+  ${make_gvim:+linuxdeploy-plugin-gtk.sh 'https://raw.githubusercontent.com/linuxdeploy/linuxdeploy-plugin-gtk/master/linuxdeploy-plugin-gtk.sh'}
 
 for APP; do
   LOWERAPP=${APP,,}
