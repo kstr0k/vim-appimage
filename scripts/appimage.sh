@@ -52,9 +52,6 @@ extract_appimage() (  # args: appimg appdir
 make_appimage()
 (
 	cd "${BUILD_BASE}"
-	[ -x linuxdeploy.appimage ] ||
-		wget -O linuxdeploy.appimage -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-	chmod +x linuxdeploy.appimage
 
 	if [ "$APP" = GVim ]; then
 		test -x linuxdeploy-plugin-gtk.sh ||
@@ -84,10 +81,20 @@ make_appimage()
 
 	deploy_copyrights "$APP".ldai.extracted
 
-	[ -e appimagetool ] ||
-		wget -O appimagetool https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage
-	chmod u+x appimagetool
 	./appimagetool ${LDAI_UPDATE_INFORMATION:+-u "$LDAI_UPDATE_INFORMATION"} --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 256k --mksquashfs-opt -no-progress "$APP".ldai.extracted "$APPIMG_FNAME"
+)
+
+download_tools() (
+  cd "${BUILD_BASE}"
+
+  while [ "$#" != 0 ]; do
+    if ! [ -e "$1" ]; then
+      wget -q -O "$1" "$2" && chmod u+x "$1" &
+    fi
+  done
+
+  wait
+  chmod u+x appimagetool linuxdeploy.appimage
 )
 
 github_actions_deploy()
@@ -138,7 +145,14 @@ mkdir -p "$BUILD_BASE"
 : "${VERSION:="$(git -C "${SOURCE_DIR}" describe --tags --abbrev=0 || git describe --always)"}"
 : "${APPIMG_FNAME_SFX:=${VERSION}.glibc${GLIBC}-$(arch).AppImage}"
 
+case " $* " in (*' GVim '*) make_gvim=1 ;; (*) make_gvim= ;; esac
+
 gen_release_notes
+download_tools \
+  linuxdeploy.appimage \
+     'https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage' \
+  appimagetool \
+     'https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage'
 
 for APP; do
   LOWERAPP=${APP,,}
