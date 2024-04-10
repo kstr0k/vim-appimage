@@ -114,8 +114,6 @@ compute_glibc_version() {
 script_dir=$(dirname "$(readlink -f "$0")")
 
 VIM_DIR=$script_dir/../vim
-BUILD_BASE=$script_dir/../build
-mkdir -p "$BUILD_BASE"
 : "${GLIBC:=$(compute_glibc_version)}"
 
 # should use tag if available, else use 7-hexdigit hash
@@ -126,6 +124,8 @@ mkdir -p "$BUILD_BASE"
 gen_release_notes
 
 for APP; do
+  BUILD_BASE=$script_dir/../appimage-${APP}
+  mkdir -p "$BUILD_BASE"
   LOWERAPP=${APP,,}
   APPIMG_FNAME=${APP}-${APPIMG_FNAME_SFX}
   make_and_deploy
