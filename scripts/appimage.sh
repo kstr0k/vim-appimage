@@ -75,17 +75,14 @@ make_appimage()
 		-d "${VIM_DIR}/runtime/${LOWERAPP}.desktop" \
 		-i "${VIM_DIR}/runtime/${LOWERAPP}.png" \
 		${PLUGIN:-} \
-		--output appimage
-	extract_appimage "$APPIMG_FNAME" "$APP".ldai.extracted
-	mv "$APPIMG_FNAME" "${APPIMG_FNAME%.*}".ldai  # available for debugging
 
-	deploy_copyrights "$APP".ldai.extracted
+	deploy_copyrights "$APP".AppDir
 
 	../tools/appimagetool \
           --runtime-file "${LDAI_RUNTIME_FILE}" \
           ${LDAI_UPDATE_INFORMATION:+-u "${LDAI_UPDATE_INFORMATION}"} \
           --comp zstd --mksquashfs-opt -Xcompression-level --mksquashfs-opt 12 --mksquashfs-opt -b --mksquashfs-opt 256k --mksquashfs-opt -no-progress \
-          "$APP".ldai.extracted "$APPIMG_FNAME"
+          "$APP".AppDir "$APPIMG_FNAME"
 )
 
 gen_release_notes() (
