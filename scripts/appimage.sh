@@ -88,15 +88,6 @@ make_appimage()
           "$APP".ldai.extracted "$APPIMG_FNAME"
 )
 
-github_actions_deploy()
-(
-	[ -n "$GITHUB_ACTIONS" ] || return 0
-		cd -P "${BUILD_BASE}"
-		# Copy artifacts to $GITHUB_WORKSPACE
-		printf '%s\n' "Copy $BUILD_BASE/$APPIMG_FNAME -> $GITHUB_WORKSPACE"
-		cp "$APPIMG_FNAME" "$APPIMG_FNAME".zsync "$GITHUB_WORKSPACE"
-)
-
 gen_release_notes() (
   # Github Release Notes
   [ -n "$GITHUB_ACTIONS" ] || return 0
@@ -113,9 +104,6 @@ make -C "${VIM_DIR}"/src/"${LOWERAPP}" install DESTDIR="${BUILD_BASE}/${APP}.App
 
 # Create Appimage
 make_appimage
-
-# Perform Github Deployment
-github_actions_deploy
 )
 
 compute_glibc_version() {
