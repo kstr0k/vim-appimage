@@ -6,7 +6,7 @@ patch_desktop_files()
 {
 	# Remove duplicate keys from desktop file. This might occure while localisation
 	# for the desktop file is progressing.
-	pushd "${SOURCE_DIR}/runtime"
+	pushd "${VIM_DIR}/runtime"
 	mv ${LOWERAPP}.desktop ${LOWERAPP}.desktop.orig
 	awk '{x=$0; sub(/=.*$/, "", x);if(!seen[x]++){print $0}}' ${LOWERAPP}.desktop.orig > ${LOWERAPP}.desktop
 	rm ${LOWERAPP}.desktop.orig
@@ -54,8 +54,8 @@ EOF
 	export OUTPUT="${APP}-${VERSION}.glibc${GLIBC}-${ARCH}.AppImage"
 
 	./linuxdeploy.appimage --appdir "$APP.AppDir" \
-		-d "${SOURCE_DIR}/runtime/${LOWERAPP}.desktop" \
-		-i "${SOURCE_DIR}/runtime/${LOWERAPP}.png" \
+		-d "${VIM_DIR}/runtime/${LOWERAPP}.desktop" \
+		-i "${VIM_DIR}/runtime/${LOWERAPP}.png" \
 		${PLUGIN:-} \
 		--output appimage
 }
@@ -96,8 +96,8 @@ pushd vim
 GIT_REV="$(git rev-parse --short HEAD)"
 # should use tag if available, else use 7-hexdigit hash
 VERSION="$(git describe --tags --abbrev=0 || git describe --always)"
-# SOURCE_DIR: /home/<user>/vim-appimage/vim
-SOURCE_DIR="$(git rev-parse --show-toplevel)"
+# VIM_DIR: /home/<user>/vim-appimage/vim
+VIM_DIR="$(git rev-parse --show-toplevel)"
 ARCH=$(arch)
 LOWERAPP=${APP,,}
 popd
@@ -105,7 +105,7 @@ popd
 # uses the shadowdir from build_vim.sh
 pushd vim/src/$LOWERAPP
 
-GLIBC=$(find ${SOURCE_DIR} -type f -executable -exec strings {} \; | grep "^GLIBC_2" | sed s/GLIBC_//g | sort --version-sort | uniq | tail -n 1)
+GLIBC=$(find ${VIM_DIR} -type f -executable -exec strings {} \; | grep "^GLIBC_2" | sed s/GLIBC_//g | sort --version-sort | uniq | tail -n 1)
 # Prepare some source files
 patch_desktop_files
 
