@@ -2,6 +2,10 @@
 
 set -e
 
+unsorted_uniq() {
+  awk '{x=$0; sub(/=.*$/, "", x);if(!seen[x]++){print $0}}'
+}
+
 patch_desktop_files()
 (
 	# Remove duplicate keys from desktop file. This might occure while localisation
