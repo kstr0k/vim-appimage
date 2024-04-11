@@ -93,19 +93,23 @@ gen_release_notes() (
   . "$script_dir"/release_notes.sh > "$RLS_BODY"
 )
 
-make_and_deploy() (
+make_install() {
 # Prepare source files
 patch_desktop_files
 # uses the shadowdir from build_vim.sh
 make -C "${VIM_DIR}"/src/"${LOWERAPP}" install DESTDIR="${BUILD_BASE}/${APP}.AppDir" >/dev/null
-
-# Create Appimage
-make_appimage
-)
+}
 
 compute_glibc_version() {
   find "${VIM_DIR}" -type f -executable -exec nm -j -D {} + 2>/dev/null | sed -ne '/@GLIBC_2[.]/{ s/.*@GLIBC_//; /^2[.][0-9][.]/d; /^2[.][0-9]$/d; p }' | sort --version-sort -r -u | head -n 1
   #/lib/x86_64-linux-gnu/libc.so.6 | sed -ne 's/.*GLIBC \(2\.[0-9][0-9]*\).*/\1/p;q'  # system version might be higher than actually required
+}
+
+setup_app_build() {
+  BUILD_BASE=$script_dir/../appimage-${APP}
+  mkdir -p "$BUILD_BASE"
+  LOWERAPP=${APP,,}
+  APPIMG_FNAME=${APP}-${APPIMG_FNAME_SFX}
 }
 
 script_dir=$(dirname "$(readlink -f "$0")")
@@ -121,9 +125,7 @@ VIM_DIR=$script_dir/../vim
 gen_release_notes
 
 for APP; do
-  BUILD_BASE=$script_dir/../appimage-${APP}
-  mkdir -p "$BUILD_BASE"
-  LOWERAPP=${APP,,}
-  APPIMG_FNAME=${APP}-${APPIMG_FNAME_SFX}
-  make_and_deploy
+  setup_app_build
+  make_install
+  make_appimage
 done
