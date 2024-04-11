@@ -10,15 +10,13 @@ patch_desktop_files()
 (
 	# Remove duplicate keys from desktop file. This might occure while localisation
 	# for the desktop file is progressing.
-	cd "${VIM_DIR}/runtime"
-	mv "${LOWERAPP}".desktop "${LOWERAPP}".desktop.orig
-	unsorted_uniq <"${LOWERAPP}.desktop.orig" >"${LOWERAPP}".desktop
-	rm "${LOWERAPP}".desktop.orig
+	cd "${BUILD_BASE}"
+	unsorted_uniq <"${VIM_DIR}/runtime/${LOWERAPP}".desktop >"${LOWERAPP}".desktop
 
 	if [ "${LOWERAPP}" = vim ]; then
 		sed -i 's/^Icon=gvim/Icon=vim/' "${LOWERAPP}".desktop
 	fi
-	png=$(find . -xdev -name "vim48x48.png" -print -quit)
+	png=$(find "${VIM_DIR}"/runtime -xdev -name 'vim48x48.png' -print -quit)
 	cp "$png" "${LOWERAPP}".png
 )
 
@@ -74,8 +72,8 @@ make_appimage()
 
 	LDAI_OUTPUT="$APPIMG_FNAME" DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1 ../tools/linuxdeploy \
 		--appdir "$APP.AppDir" \
-		-d "${VIM_DIR}/runtime/${LOWERAPP}.desktop" \
-		-i "${VIM_DIR}/runtime/${LOWERAPP}.png" \
+		-d "${LOWERAPP}.desktop" \
+		-i "${LOWERAPP}.png" \
 		${PLUGIN:-} \
 
 	deploy_copyrights "$APP".AppDir
