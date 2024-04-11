@@ -53,7 +53,7 @@ extract_appimage() (  # args: appimg appdir
   rmdir "$d"
 )
 
-make_appimage()
+make_appdir()
 (
 	cd "${BUILD_BASE}"
 
@@ -70,7 +70,10 @@ make_appimage()
 		${PLUGIN:-} \
 
 	deploy_copyrights "$APP".AppDir
-
+)
+make_appimage()
+(
+	cd "${BUILD_BASE}"
 	../tools/appimagetool \
           --runtime-file "${LDAI_RUNTIME_FILE}" \
           ${LDAI_UPDATE_INFORMATION:+-u "${LDAI_UPDATE_INFORMATION}"} \
@@ -127,5 +130,6 @@ gen_release_notes
 for APP; do
   setup_app_build
   make_install
+  make_appdir
   make_appimage
 done
