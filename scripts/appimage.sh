@@ -63,13 +63,6 @@ make_appimage()
 	   "$script_dir"/../assets/AppRun.extracted \
 	   "${APP}".AppDir/
 
-	export LDAI_RUNTIME_FILE="$script_dir"/../tools/appimage-runtime
-	export LDAI_UPDATE_INFORMATION
-	if [ -n "${MYOWNER:-}" ]; then
-        	LDAI_UPDATE_INFORMATION="gh-releases-zsync|$MYOWNER|$MYREPO|latest|$APP-*x86_64.AppImage.zsync"
-	fi
-	# ^ linuxdeploy's internal appimage plugin uses these
-
 	LDAI_OUTPUT="$APPIMG_FNAME" DISABLE_COPYRIGHT_FILES_DEPLOYMENT=1 ../tools/linuxdeploy \
 		--appdir "$APP.AppDir" \
 		-d "${LOWERAPP}.desktop" \
@@ -110,6 +103,13 @@ setup_app_build() {
   mkdir -p "$BUILD_BASE"
   LOWERAPP=${APP,,}
   APPIMG_FNAME=${APP}-${APPIMG_FNAME_SFX}
+
+  export LDAI_RUNTIME_FILE="$script_dir"/../tools/appimage-runtime
+  export LDAI_UPDATE_INFORMATION
+  if [ -n "${MYOWNER:-}" ]; then
+    LDAI_UPDATE_INFORMATION="gh-releases-zsync|$MYOWNER|$MYREPO|latest|$APP-*x86_64.AppImage.zsync"
+  fi
+  # ^ linuxdeploy's internal appimage plugin uses these
 }
 
 script_dir=$(dirname "$(readlink -f "$0")")
