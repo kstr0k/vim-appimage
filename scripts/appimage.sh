@@ -35,9 +35,11 @@ deploy_pkg_copyright() {
 deploy_copyrights() {
   local dst lib
   dst=$1; shift
-  find "$dst"/usr/lib -type f -name '*.so*' -printf '*/%f\n' |
-    xargs -d'\n' -t -n10 -P"$(getconf _NPROCESSORS_ONLN)" dpkg-query -S |
-    sed -e 's@:.*@@' | uniq | LC_ALL=C sort -u |
+  find "$dst"/usr/lib -type f |
+    sed -ne '/\.so$\|\.so\./{ s!$!$!; s!.*/!!p }' |
+    grep -f - /var/lib/dpkg/info/*.list |
+    sed  -e 's!\.list:.*!!; s!.*/!!; s!:.*!!' |
+    LC_ALL=C sort -u |
     while IFS= read -r lib; do
       deploy_pkg_copyright "$dst" "$lib"
     done
